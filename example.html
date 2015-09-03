@@ -1,0 +1,194 @@
+<!DOCTYPE html><html><body>
+<link rel="stylesheet" type="text/css" href="cellCursor.css" />
+<style>
+body{
+	background: #eeeeee;
+}
+table.table-data tr.error{
+	background:red;
+}
+table.table-data td{
+	padding:4px;
+}
+table.table-data tbody{
+	/*max-height:400px;*/
+}
+.drag-handler{
+	border:outset 1px lightgray;
+	cursor:row-resize;
+	font-size:60%;
+	margin:4px;
+}
+.id{
+	background:#F3F3F3;
+}
+tr.cursor .id{
+	background:#E3E3E3;
+}
+</style>
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular.js"></script>
+<script src="./cellCursor.js"></script>
+<div ng-app="tableDataExample" ng-controller="rootCtrl">
+<input type="text" ng-model="query"  />
+<span>{{(userList|filter:query).length}}件 中
+<select ng-model="start" ng-options="s for s in [0,10,20,30,40,50,60,70,80,90,100]"></select> ～
+<select ng-model="limit" ng-options="s for s in [10,30,100,300,500,800,1000]"></select>件<br />
+
+
+<button ng-click="cols.push(cols.length)">+</button>
+<button ng-click="cols.pop()">-</button>
+<button ng-click="hideMail=!hideMail">Hide mail</button>
+<button ng-click="hideAge=!hideAge">Hide age</button>
+
+<br>
+<button ng-click="values=cc.getSelectedCellValues()">getSelectedCellValues</button>
+<button ng-click="values=exportSelected()">user</button>
+{{values}}
+hasFocus={{cc.hasFocus}}
+<table class="table-data" cell-cursor="cc" cell-cursor-copy="cc.getSelectedCellValues()|cellCursorToTsv" cell-cursor-Paste="cc.setSelectedCellValues($data)" ng-keydown="keydown($event)">
+	<thead>
+		<td></td>
+		<td>name</td>
+		<td ng-hide="hideMail">mail</td>
+		<td ng-hide="hideAge">age</td>
+		<td>admin</td>
+		<td ng-repeat="i in cols track by i">{{i}}</td>
+	</thead>
+	<tbody>
+		<tr ng-repeat="user in userList|filter:query|limitTo:limit:start" ng-class="{error:isError(user)}">
+			<td class="id"><span cell-cursor-Drag="cc" class="drag-handler">＝</span>{{user.id}}</td>
+			<td ng-dblclick="cc.openEditor()" ng-hide="hideName" ng-model="user.nameSet" cell-cursor-options="{editor:'text'}" ng-model-options="{getterSetter:true}">{{user.name}}</td>
+			<td ng-dblclick="cc.openEditor()" cell-cursor-options="{editor:'text'}" ng-model="user.email">{{user.email}}</td>
+			<td cell-cursor-options="{input:'input'}"><input type="number" ng-model="user.age" style="width:50px" /></td>
+			<td cell-cursor-options="{input:'input',editor:'boolean'}"><input type="checkbox" ng-model="user.admin"></td>
+			<td ng-repeat="i in cols track by i">{{user.name.charAt(i)}}</td>
+			<td ><button ng-click="delete(user)">DELETE</button></td>
+		</tr>
+	</tbody>
+</table>
+
+
+
+<script>
+angular.module("tableDataExample",["cellCursor"])
+.run(function(cellEditorFactory){
+	cellEditorFactory['boolean'] = {
+		cellKeydown:function(event, options, td, cellCursor){
+			switch(event.which){
+			case 13:
+			case 32:
+        event.stopPropagation();
+				options.setValue(!options.getValue());
+				return true;
+			}
+		},
+		open:function(options, td, finish, cellEditor){
+			options.setValue(!options.getValue());
+			finish();
+		}
+	};
+})
+.controller("rootCtrl",["$scope",function($scope){
+	$scope.$on("swapRow.start",function(e,target){console.log(arguments)})
+	$scope.keydown=function(e){
+		if(e.keyCode==9){
+			console.log("stop",e)
+			e.stopImmediatePropagation();
+		}
+	}
+	$scope.$on("cellCursor",function(e,cellCursor,name){
+		cellCursor.padding.left=1;
+		cellCursor.select({row:1,col:1});
+		cellCursor.$on("cellCursor.drag.start",function(e,pos){
+			if(!cellCursor.selected.cursor || cellCursor.selected.topLeft.row>pos.row || pos.row>cellCursor.selected.bottomRight.row){
+				cellCursor.select({row:pos.row,col:0},{row:pos.row,col:cellCursor.size().col});
+			}else{
+				e.preventDefault()
+			}
+		});
+		cellCursor.$on("cellCursor.drag",function(e, pos, tpos){
+			if(pos.row!=tpos.row){
+				var s = $scope.userList.splice(pos.row,cellCursor.selected.bottomRight.row-cellCursor.selected.topLeft.row+1);
+				$scope.userList.splice.apply($scope.userList,[tpos.row,0].concat(s));
+				pos.row = tpos.row;
+			}else{
+				e.preventDefault();
+			}
+		})
+	});
+	$scope.start = 0;
+	$scope.limit = 30;
+	$scope.query = "";
+	$scope.userList=[];
+	$scope.cols = [0,1,2,3,4];
+	$scope.log=function(msg){
+		console.log(msg);
+	}
+	function User(obj){
+		for(var i in obj){
+			this[i]=obj[i];
+		}
+	}
+	// setter
+	$scope.userNameSetter=function(user){
+		return function(val){
+			console.log('setter user.name',user.name,val);
+			user.name=val;
+		}
+	};
+	// getter
+	$scope.userNameGetter=function(user){
+		return function(val){
+			console.log('getter user.name',user.name,val);
+			return user.name;
+		}
+	};
+	$scope.exportSelected=function(){
+		var pos = $scope.cc.selected;
+		if(pos.cursor){
+			ret = [];
+			for(var i=pos.topLeft.row;i<=pos.bottomRight.row;i++){
+				ret.push($scope.userList[i]);
+			}
+			return ret;
+		}
+	}
+	// getterSetter for ng-model
+	User.prototype.nameSet=function(name){
+		if(arguments.length){
+			this.name = name;
+		}else{
+			return this.name;
+		}
+	}
+	for(var i=0;i<1000;i++){
+		$scope.userList.push(new User({
+			id:i,
+			name:"hoge"+i,
+			age:Math.floor(Math.random()*20+20),
+			admin:true,
+			email:"hoge"+i+"@example.com"
+		}));
+	}
+	$scope.userList[5].name="bad";
+	$scope.pop=function(user){
+		console.log("pop",user.name)
+	};
+	$scope.isError=function(user){
+		return user.name == "bad";
+	};
+	$scope.delete=function(user){
+		var i = $scope.userList.indexOf(user);
+		if(i!=-1){
+			$scope.userList.splice(i,1);
+		}
+	}
+	$scope.getName=function(scope,data){
+		return "["+scope.user.name+"]";
+	}
+}]);
+</script>
+
+
+</body></html>

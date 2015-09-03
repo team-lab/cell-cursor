@@ -1,0 +1,43 @@
+table.table-data{
+	background: white;
+	border-collapse:collapse;
+  table-layout: fixed;
+}
+
+table.table-data tbody{
+  background-color: white;
+}
+table.table-data tbody td{
+	border:1px dotted lightgray;
+}
+table.table-data tr.area-t > td.area{
+  border-top: 1px solid #9ABAF1;
+}
+table.table-data tr.area-b > td.area{
+  border-bottom: 1px solid #9ABAF1;
+}
+table.table-data td.area.area-l{
+  border-left: 1px solid #9ABAF1;
+}
+table.table-data td.area.area-r{
+  border-right: 1px solid #9ABAF1;
+}
+table.table-data td.area.cursor,
+table.table-data td.cursor{
+  border: 1px solid #9ABAF1;
+	background: #FAFAFF;
+}
+table.table-data.focus td.area.cursor,
+table.table-data.focus td.cursor{
+	background: #FAFAFF;
+  border: 1px solid #4285F4;
+}
+table.table-data td.area{
+	background: #ECF3FF;
+}
+table.table-data thead td{
+	background: #F3F3F3;
+	border-left:1px solid #CCCCCC;
+	border-bottom:1px solid #CCCCCC;
+	text-align: center;
+}
