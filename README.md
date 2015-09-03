@@ -11,6 +11,11 @@ Simple excel like spreadsheet development kit for angualrJs.
   * user can edit cell value.
   * Easy to extend.
 
+example
+---------
+
+http://team-lab.github.io/cell-cursor/example.html
+
 directivs
 ---------
 
