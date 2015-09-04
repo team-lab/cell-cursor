@@ -11,7 +11,7 @@ Simple excel like spreadsheet development kit for angualrJs.
   * user can edit cell value (<kbd>ENTER</kbd>,<kbd>F2</kbd>, or direct input for example <kbd>a</kbd>).
   * Easy to extend.
 
-![capture](https://gyazo.com/2e2b55af748a0224496ba709af86fa80)
+![capture](https://dl.dropboxusercontent.com/u/196431/2e2b55af748a0224496ba709af86fa80.png)
 
 DEMO
 ----
