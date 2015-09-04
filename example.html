@@ -1,17 +1,18 @@
-<!DOCTYPE html><html><body>
+<!DOCTYPE html><html>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" integrity="sha256-MfvZlkHCEqatNoGiOXveE8FIwMzZg4W85qfrfIFBfYc= sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
 <link rel="stylesheet" type="text/css" href="cellCursor.css" />
 <style>
 body{
 	background: #eeeeee;
 }
 table.table-data tr.error{
-	background:red;
+	background:#f2dede;
 }
 table.table-data td{
 	padding:4px;
 }
-table.table-data tbody{
-	/*max-height:400px;*/
+table.table-data td{
+	padding:4px;
 }
 .drag-handler{
 	border:outset 1px lightgray;
@@ -25,64 +26,147 @@ table.table-data tbody{
 tr.cursor .id{
 	background:#E3E3E3;
 }
-</style>
 
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular.js"></script>
-<script src="./cellCursor.js"></script>
+</style>
+<body>
+
+
+<div class="container">
+<div class="page-header">
+
+<h1>angular Cell Cursor DEMO</h1>
+
+<p class="lead">
+<a href="https://github.com/team-lab/cell-cursor">https://github.com/team-lab/cell-cursor</a>
+</p>
+
+<p>Simple excel like spreadsheet development kit for angualrJs.</p>
+
+<ul>
+<li>display table cell cursor like Excel.
+
+<ul>
+<li>user can move cursor by mouse or keyboad. ( <kbd>ARROW</kbd> )</li>
+</li></ul>
+<li>range selection like Excel.(mouse drag or <kbd>shift</kbd>+<kbd>ARROW</kbd> , <kbd>ESC</kbd> to deselect)</li>
+<li>user can copy range values to Excel. (<kbd>ctrl</kbd>+<kbd>C</kbd>)</li>
+<li>user can paste range values from Excel.  (<kbd>ctrl</kbd>+<kbd>V</kbd>)</li>
+<li>user can edit cell value.(<kbd>ENTER</kbd>,<kbd>F2</kbd>, or direct input for example <kbd>a</kbd>)</li>
+<li>Easy to extend.</li>
+</ul>
+
+</div>
+
+
 <div ng-app="tableDataExample" ng-controller="rootCtrl">
 <input type="text" ng-model="query"  />
-<span>{{(userList|filter:query).length}}件 中
+
 <select ng-model="start" ng-options="s for s in [0,10,20,30,40,50,60,70,80,90,100]"></select> ～
-<select ng-model="limit" ng-options="s for s in [10,30,100,300,500,800,1000]"></select>件<br />
+<select ng-model="limit" ng-options="s for s in [10,30,100,300,500,800,1000]"></select> / {{(userList|filter:query).length}} items<br />
 
 
-<button ng-click="cols.push(cols.length)">+</button>
-<button ng-click="cols.pop()">-</button>
 <button ng-click="hideMail=!hideMail">Hide mail</button>
 <button ng-click="hideAge=!hideAge">Hide age</button>
+&nbsp;&nbsp;
+<button ng-click="cols.push(cols.length)">+</button>
+<button ng-click="cols.pop()">-</button>
 
 <br>
-<button ng-click="values=cc.getSelectedCellValues()">getSelectedCellValues</button>
-<button ng-click="values=exportSelected()">user</button>
-{{values}}
-hasFocus={{cc.hasFocus}}
-<table class="table-data" cell-cursor="cc" cell-cursor-copy="cc.getSelectedCellValues()|cellCursorToTsv" cell-cursor-Paste="cc.setSelectedCellValues($data)" ng-keydown="keydown($event)">
+↑ controll by normal angular.js for example ng-repeat,filter,limitTo... , NOT by complex directive options.
+<br>
+<br>
+<button ng-click="cc.select({row:0,col:0},{row:-1,col:-1})">SELECT ALL</button>
+<button ng-click="cc.deselect()">DESELECT</button>
+<button ng-click="cc.selectMove({row:-1})">↑</button>
+<button ng-click="cc.selectMove({row:1})">↓</button>
+<button ng-click="cc.selectMove({col:-1})">←</button>
+<button ng-click="cc.selectMove({col:1})">→</button>
+<button ng-click="cc.setSelectedCellValues([['good','bad'],['good','bad@example.com']])">setSelectedCellValues([['good','bad'],['good','bad@example.com']])</button>
+<button ng-click="cc.focus()">focus</button>
+<button ng-click="cc.blur()">blur</button>
+<br>
+↑ controll by directive.
+<br>
+<br>
+
+<table class="table-data" style="float:left"
+  cell-cursor="cc"
+  cell-cursor-copy="cc.getSelectedCellValues()|cellCursorToTsv"
+  cell-cursor-paste="cc.setSelectedCellValues($data)"
+  ng-keydown="keydown($event)">
 	<thead>
-		<td></td>
-		<td>name</td>
-		<td ng-hide="hideMail">mail</td>
-		<td ng-hide="hideAge">age</td>
-		<td>admin</td>
-		<td ng-repeat="i in cols track by i">{{i}}</td>
+		<tr>
+			<td></td>
+			<td>name</td>
+			<td ng-hide="hideMail">mail</td>
+			<td ng-hide="hideAge">age</td>
+			<td>admin</td>
+			<!-- complex columns sample -->
+			<td ng-repeat="i in cols track by i">{{i}}</td>
+		</tr>
 	</thead>
 	<tbody>
-		<tr ng-repeat="user in userList|filter:query|limitTo:limit:start" ng-class="{error:isError(user)}">
-			<td class="id"><span cell-cursor-Drag="cc" class="drag-handler">＝</span>{{user.id}}</td>
-			<td ng-dblclick="cc.openEditor()" ng-hide="hideName" ng-model="user.nameSet" cell-cursor-options="{editor:'text'}" ng-model-options="{getterSetter:true}">{{user.name}}</td>
-			<td ng-dblclick="cc.openEditor()" cell-cursor-options="{editor:'text'}" ng-model="user.email">{{user.email}}</td>
+		<tr ng-repeat="user in userList|filter:query|limitTo:limit:start as result" ng-class="{error:isError(user)}">
+			<td class="id">
+				<!-- drag-drop handle -->
+				<span ng-show="!query" class="drag-handler"
+					cell-cursor-Drag="cc">＝</span>
+				{{user.id}}
+			</td>
+
+			<!-- using ng-model with getter-setter sample -->
+			<td ng-dblclick="cc.openEditor()" ng-hide="hideName" ng-model="user.nameSet" ng-model-options="{getterSetter:true}"
+				cell-cursor-options="{editor:'text'}">{{user.name}}</td>
+
+			<!-- using ng-model and setter sample -->
+			<td ng-dblclick="cc.openEditor()" ng-model="user.email" cell-cursor-options="{editor:'text',setter:emailSetter(user)}">{{user.email}}</td>
+
+			<!-- using delegate `input` sample -->
 			<td cell-cursor-options="{input:'input'}"><input type="number" ng-model="user.age" style="width:50px" /></td>
+
+			<!-- using delegate `input` and custome editor sample -->
 			<td cell-cursor-options="{input:'input',editor:'boolean'}"><input type="checkbox" ng-model="user.admin"></td>
+
+			<!-- complex columns sample -->
 			<td ng-repeat="i in cols track by i">{{user.name.charAt(i)}}</td>
+
 			<td ><button ng-click="delete(user)">DELETE</button></td>
 		</tr>
 	</tbody>
 </table>
+<div style="float:left;width:200px">
+hasFocus={{cc.hasFocus}}<br />
+<br />
+selected={{cc.selected}}<br />
+<br />
+getSelectedCellValues={{cc.getSelectedCellValues()}}<br />
+<br />
+users={{exportSelected()}}
+<br />
+<br />
+</div>
 
 
-
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular.js"></script>
+<script src="./cellCursor.js"></script>
 <script>
 angular.module("tableDataExample",["cellCursor"])
 .run(function(cellEditorFactory){
+	// create cell editor
 	cellEditorFactory['boolean'] = {
-		cellKeydown:function(event, options, td, cellCursor){
-			switch(event.which){
-			case 13:
-			case 32:
-        event.stopPropagation();
-				options.setValue(!options.getValue());
-				return true;
+		// cell key event handler
+		cellKey:function(event, options, td, cellCursor){
+			if(event.type=='keydown'){
+				switch(event.which){
+				case 13:
+				case 32:
+	        event.stopPropagation();
+					options.setValue(!options.getValue());
+					return true;
+				}
 			}
 		},
+		// editor open handler
 		open:function(options, td, finish, cellEditor){
 			options.setValue(!options.getValue());
 			finish();
@@ -90,16 +174,22 @@ angular.module("tableDataExample",["cellCursor"])
 	};
 })
 .controller("rootCtrl",["$scope",function($scope){
-	$scope.$on("swapRow.start",function(e,target){console.log(arguments)})
+	// override keydown event by ng-keydown
 	$scope.keydown=function(e){
 		if(e.keyCode==9){
 			console.log("stop",e)
 			e.stopImmediatePropagation();
 		}
 	}
+	// event on cellCursor initalized.
 	$scope.$on("cellCursor",function(e,cellCursor,name){
+		// set padding. padding is no selectable area.
 		cellCursor.padding.left=1;
-		cellCursor.select({row:1,col:1});
+		cellCursor.padding.right=1;
+		// select by script
+		cellCursor.select({row:1,col:0},{row:2,col:2});
+
+		// drag and drop handlers from `cell-cursor-drag` directive
 		cellCursor.$on("cellCursor.drag.start",function(e,pos){
 			if(!cellCursor.selected.cursor || cellCursor.selected.topLeft.row>pos.row || pos.row>cellCursor.selected.bottomRight.row){
 				cellCursor.select({row:pos.row,col:0},{row:pos.row,col:cellCursor.size().col});
@@ -109,14 +199,27 @@ angular.module("tableDataExample",["cellCursor"])
 		});
 		cellCursor.$on("cellCursor.drag",function(e, pos, tpos){
 			if(pos.row!=tpos.row){
-				var s = $scope.userList.splice(pos.row,cellCursor.selected.bottomRight.row-cellCursor.selected.topLeft.row+1);
-				$scope.userList.splice.apply($scope.userList,[tpos.row,0].concat(s));
+				var s = $scope.userList.splice(pos.row + $scope.start,cellCursor.selected.bottomRight.row-cellCursor.selected.topLeft.row+1);
+				$scope.userList.splice.apply($scope.userList,[tpos.row + $scope.start,0].concat(s));
 				pos.row = tpos.row;
 			}else{
 				e.preventDefault();
 			}
 		})
 	});
+	// fetch row datas
+	$scope.exportSelected=function(){
+		var pos = $scope.cc.selected;
+		if(pos.cursor){
+			ret = [];
+			for(var i=pos.topLeft.row;i<=pos.bottomRight.row;i++){
+				ret.push($scope.userList[i+$scope.start]);
+			}
+			return ret;
+		}
+	}
+
+	// create datas
 	$scope.start = 0;
 	$scope.limit = 30;
 	$scope.query = "";
@@ -125,33 +228,33 @@ angular.module("tableDataExample",["cellCursor"])
 	$scope.log=function(msg){
 		console.log(msg);
 	}
-	function User(obj){
-		for(var i in obj){
-			this[i]=obj[i];
-		}
-	}
-	// setter
+	// setter sample
 	$scope.userNameSetter=function(user){
 		return function(val){
 			console.log('setter user.name',user.name,val);
 			user.name=val;
 		}
 	};
-	// getter
+	// getter sample
 	$scope.userNameGetter=function(user){
 		return function(val){
 			console.log('getter user.name',user.name,val);
 			return user.name;
 		}
 	};
-	$scope.exportSelected=function(){
-		var pos = $scope.cc.selected;
-		if(pos.cursor){
-			ret = [];
-			for(var i=pos.topLeft.row;i<=pos.bottomRight.row;i++){
-				ret.push($scope.userList[i]);
-			}
-			return ret;
+	// setter with validation sample
+	$scope.emailSetter=function(user){
+		return function(val){
+			if(!val)return;
+			val = (val||"").toString();
+			if(val.indexOf("@")==-1) return;
+			user.email=val;
+		}
+	};
+
+	function User(obj){
+		for(var i in obj){
+			this[i]=obj[i];
 		}
 	}
 	// getterSetter for ng-model
@@ -172,20 +275,16 @@ angular.module("tableDataExample",["cellCursor"])
 		}));
 	}
 	$scope.userList[5].name="bad";
-	$scope.pop=function(user){
-		console.log("pop",user.name)
-	};
+
 	$scope.isError=function(user){
 		return user.name == "bad";
 	};
+
 	$scope.delete=function(user){
 		var i = $scope.userList.indexOf(user);
 		if(i!=-1){
 			$scope.userList.splice(i,1);
 		}
-	}
-	$scope.getName=function(scope,data){
-		return "["+scope.user.name+"]";
 	}
 }]);
 </script>
