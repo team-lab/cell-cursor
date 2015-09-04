@@ -4,12 +4,14 @@ angular Cell Cursor
 Simple excel like spreadsheet development kit for angualrJs.
 
   * display table cell cursor like Excel.
-    * user can move cursor by mouse or keyboad.
-  * range selection like Excel.
-  * user can copy range values to Excel.
-  * user can paste range values from Excel.
-  * user can edit cell value.
+    * user can move cursor by mouse or keyboad ( <kbd>ARROW</kbd> ).
+  * range selection like Excel (mouse drag or <kbd>shift</kbd>+<kbd>ARROW</kbd> , <kbd>ESC</kbd> to deselect).
+  * user can copy range values to Excel (<kbd>ctrl</kbd>+<kbd>C</kbd>).
+  * user can paste range values from Excel (<kbd>ctrl</kbd>+<kbd>V</kbd>).
+  * user can edit cell value (<kbd>ENTER</kbd>,<kbd>F2</kbd>, or direct input for example <kbd>a</kbd>).
   * Easy to extend.
+
+![capture](https://gyazo.com/2e2b55af748a0224496ba709af86fa80)
 
 DEMO
 ----
