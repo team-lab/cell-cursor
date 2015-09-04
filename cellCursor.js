@@ -34,6 +34,15 @@ function Range(pos,expanding){
 function ifMoving(old,pos){
   return (!old||old.row!=pos.row||old.col!=pos.col) ? pos : old;
 }
+/** @return xpath [HTMLElement] */
+function xpath(elem, path){
+  var r = elem.ownerDocument.evaluate(path, elem, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+  for(var l=r.snapshotLength, ret=new Array(l),i=0;i<l;i++){
+    ret[i]=r.snapshotItem(i);
+  }
+  return ret;
+}
+
 Range.prototype.setCurrent=function(pos, expanding){
   this.cursor = ifMoving(this.cursor,{
     row:pos.row,
@@ -115,22 +124,17 @@ CellCursor.prototype.tBody = function(){
 /** @return HTMLTableColElement */
 CellCursor.prototype.col = function(c){
   if(!this._colgroup){
-    for(var i=0,n=this.table[0].childNodes,l=c.length;i<l;i++){
-      if(n[l].tagName=="COLGROUP"){
-        this._colgroup=n[l];
-        break;
-      }
-    }
+    this._colgroup = xpath(this.table[0],"colgroup")[0];
     if(!this._colgroup){
       this._colgroup = this.table[0].ownerDocument.createElement('COLGROUP');
       this.table.prepend(this._colgroup);
     }
   }
-  while(!this._colgroup.children[c]){
+  while(!this._colgroup.children[c+this.padding.left]){
     var col =this.table[0].ownerDocument.createElement('COL');
     this._colgroup.appendChild(col);
   }
-  return this._colgroup.children[c];
+  return this._colgroup.children[c+this.padding.left];
 };
 /** @return [tr:HTMLTableRowElement] */
 CellCursor.prototype.rows=function(){
@@ -233,8 +237,7 @@ CellCursor.prototype.setCellValue=function(td, data){
   var e = angular.element(td).data();
   if(e.$cellCursorOptionsController){
     e.$cellCursorOptionsController.setValue(data);
-  }
-  if(e.$ngModelController){
+  }else if(e.$ngModelController){
     e.$ngModelController.$setViewValue(data);
   }
 };
@@ -334,6 +337,13 @@ CellCursor.prototype.selectMove = function(move,expanding){
   }
   this.select(pos, expanding);
 };
+/**
+ * deselect
+ */
+CellCursor.prototype.deselect = function(){
+  this.selected.deselect();
+};
+
 /** @param e:KeydownEvent */
 CellCursor.prototype.keyMoveHandler = function(e){
   if(e.ctrlKey||e.metaKey||e.altKey) return;
