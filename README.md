@@ -146,4 +146,43 @@ event called now `keydown`|`keypress`|`keydown`|`compositionstart`|`compositionu
   </div>
 ```
 
+### cell-cursor-drag
+
+`cell-cursor-drag="expression"`
+
+expression indicate `CellCursor` object.
+
+```html
+  <div ng-app="app" ng-controller="rootCtrl">
+    <table tabindex="0" cell-cursor="x">
+      <tbody>
+        <tr ng-repeat="i in items">
+          <td ng-model="i.id" ng-readonly="readonly" cell-cursor-drag="x">{{i.name}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <script>
+  angular.module('app',['cellCursor'])
+  .controller('rootCtrl',['$scope',function($scope){
+    $scope.items=[{id:1,name:'apple'},{id:2,name:'orange'},{id:3,name:'banana'}];
+    // after initialized handler
+    $scope.$on("cellCursor",function(e, cellCursor, name){
+      if(name=='x'){
+        // set drag handler
+        cellCursor.$on("cellCursor.drag",function(e, fromPos, toPos){
+          if(fromPos.row!=toPos.row){
+            // cut & paste
+            var s = $scope.items.splice(fromPos.row,1);
+            $scope.items.splice.apply($scope.items,[toPos.row,0].concat(s));
+            fromPos.row = toPos.row;
+          }else{
+            e.preventDefault();
+          }
+        });
+      }
+    });
+  }]);
+  </script>
+```
 
