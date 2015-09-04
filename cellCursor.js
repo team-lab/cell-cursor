@@ -337,6 +337,13 @@ CellCursor.prototype.selectMove = function(move,expanding){
   }
   this.select(pos, expanding);
 };
+/**
+ * deselect
+ */
+CellCursor.prototype.deselect = function(){
+  this.selected.deselect();
+};
+
 /** @param e:KeydownEvent */
 CellCursor.prototype.keyMoveHandler = function(e){
   if(e.ctrlKey||e.metaKey||e.altKey) return;
