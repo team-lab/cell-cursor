@@ -52,7 +52,7 @@ directives
 When `copy` called, then set data to clipboard.
 
 ```html
-  <div ng-init="items=[{id:1,name:'apple'},{id:2,name:'orange'},{id:3,name:'banana'}]">
+  <div ng-app="app" ng-controller="rootCtrl">
     <table tabindex="0" cell-cursor="x" cell-cursor-copy="x.getSelectedCellValues()|cellCursorToTsv">
     	<tbody>
 	    	<tr ng-repeat="i in items">
@@ -65,14 +65,16 @@ When `copy` called, then set data to clipboard.
     </table>
   </div>
   <script>
-	function rootCtrl($scope){
+  angular.module('app',['cellCursor'])
+  .controller('rootCtrl',['$scope',function($scope){
+    $scope.items=[{id:1,name:'apple'},{id:2,name:'orange'},{id:3,name:'banana'}];
 		// create getter
 		$scope.getName=function(i){
 			return function(){
 				return "["+i.name+"]";
 			}
 		}	
-	}
+	}]);
 	</script>
 ```
 
@@ -86,7 +88,7 @@ When press `ctrl+v` called, then get data from clipboard.
 Expression scope has `$data` it is clipboard data.
 
 ```html
-  <div ng-init="items=[{id:1,name:'apple'},{id:2,name:'orange'},{id:3,name:'banana'}]">
+  <div ng-app="app" ng-controller="rootCtrl">
     <table tabindex="0" cell-cursor="x" cell-cursor-paste="x.setSelectedCellValues($data)">
     	<tbody>
 	    	<tr ng-repeat="i in items">
@@ -101,7 +103,9 @@ Expression scope has `$data` it is clipboard data.
     <button ng-click="readonly=!readonly">readonly({{readonly}})</button>
   </div>
   <script>
-	function rootCtrl($scope){
+  angular.module('app',['cellCursor'])
+  .controller('rootCtrl',['$scope',function($scope){
+    $scope.items=[{id:1,name:'apple'},{id:2,name:'orange'},{id:3,name:'banana'}];
 		// create setter
 		$scope.setName=function(i){
 			return function(v){
@@ -110,7 +114,7 @@ Expression scope has `$data` it is clipboard data.
 				}
 			}
 		}
-	}
+	}]);
 	</script>
 ```
 
