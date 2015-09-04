@@ -1,5 +1,5 @@
-Cell Cursor
-===========
+angular Cell Cursor
+===================
 
 Simple excel like spreadsheet development kit for angualrJs.
 
