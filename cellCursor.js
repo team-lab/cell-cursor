@@ -237,8 +237,7 @@ CellCursor.prototype.setCellValue=function(td, data){
   var e = angular.element(td).data();
   if(e.$cellCursorOptionsController){
     e.$cellCursorOptionsController.setValue(data);
-  }
-  if(e.$ngModelController){
+  }else if(e.$ngModelController){
     e.$ngModelController.$setViewValue(data);
   }
 };
