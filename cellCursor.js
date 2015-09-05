@@ -927,7 +927,7 @@ angular.module("cellCursor",[])
         var x = e.pageX, w=elem[0].offsetWidth;
         var cols=$(xpath(elem[0],'../../../*/tr/*['+(elem[0].cellIndex+1)+']'));
         function dragHandler(e){
-          cols.css('width',(w+e.pageX-x)+'px');
+          cols.css('max-width',(w+e.pageX-x)+'px');
           e.stopPropagation();
           e.preventDefault();
         }

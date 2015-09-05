@@ -26,6 +26,9 @@ table.table-data td{
 tr.cursor .id{
 	background:#E3E3E3;
 }
+tr .wrap{
+	overflow: hidden;
+}
 
 </style>
 <body>
@@ -116,10 +119,10 @@ tr.cursor .id{
 
 			<!-- using ng-model with getter-setter sample -->
 			<td ng-dblclick="cc.openEditor()" ng-hide="hideName" ng-model="user.nameSet" ng-model-options="{getterSetter:true}"
-				cell-cursor-options="{editor:'text'}">{{user.name}}</td>
+				cell-cursor-options="{editor:'text'}"><div class="wrap">{{user.name}}</div></td>
 
 			<!-- using ng-model and setter sample -->
-			<td ng-dblclick="cc.openEditor()" ng-model="user.email" cell-cursor-options="{editor:'text',setter:emailSetter(user)}">{{user.email}}</td>
+			<td ng-dblclick="cc.openEditor()" ng-model="user.email" cell-cursor-options="{editor:'text',setter:emailSetter(user)}"><div class="wrap">{{user.email}}</div></td>
 
 			<!-- using delegate `input` sample -->
 			<td cell-cursor-options="{input:'input'}"><input type="number" ng-model="user.age" style="width:50px" /></td>
