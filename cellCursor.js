@@ -580,7 +580,7 @@ angular.module("cellCursor",[])
     require:'?ngModel',
     link:function(scope,elem,attrs,modelCtrl){
       elem.on("blur",function(){
-        //scope.finish();
+        scope.finish();
         scope.$apply();
       }).on('keydown', function(e){
         switch(e.which){
