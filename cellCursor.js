@@ -917,5 +917,51 @@ angular.module("cellCursor",[])
       });
     }
   };
+}])
+.directive("cellCursorColResize",["$document",function($document){
+  return {
+    link:function(scope, elem, attrs){
+      var handle = angular.element('<div style="position:absolute;right:0px;width:4px;top:0;bottom:0;cursor:col-resize;">');
+      elem.prepend(handle).css({position:'relative'});
+      handle.on('mousedown',function(e){
+        var x = e.pageX, w=elem[0].offsetWidth;
+        var cols=$(xpath(elem[0],'../../../*/tr/*['+(elem[0].cellIndex+1)+']'));
+        function dragHandler(e){
+          cols.css('width',(w+e.pageX-x)+'px');
+          e.stopPropagation();
+          e.preventDefault();
+        }
+        e.stopPropagation();
+        e.preventDefault();
+        $document.on('mousemove',dragHandler);
+        $document.one('mouseup',function(){
+          $document.off('mousemove',dragHandler);
+        });
+      });
+    }
+  };
+}])
+.directive("cellCursorRowResize",["$document",function($document){
+  return {
+    link:function(scope, elem, attrs){
+      var handle = angular.element('<div style="position:absolute;right:0px;height:4px;left:0;bottom:0;cursor:row-resize;">');
+      elem.prepend(handle).css({position:'relative'});
+      handle.on('mousedown',function(e){
+        var y = e.pageY, h=elem[0].offsetHeight;
+        function dragHandler(e){
+          elem.parent().css('height',(h+e.pageY-y)+'px');
+          e.stopPropagation();
+          e.preventDefault();
+        }
+        e.stopPropagation();
+        e.preventDefault();
+        $document.on('mousemove',dragHandler);
+        $document.one('mouseup',function(){
+          $document.off('mousemove',dragHandler);
+        });
+      });
+    }
+  };
 }]);
+
 })(angular);
