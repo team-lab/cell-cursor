@@ -190,3 +190,35 @@ expression indicate `CellCursor` object.
   </script>
 ```
 
+### cell-cursor-col-resize
+
+create drag resize handler.
+
+```html
+<table>
+  <tr>
+    <td cell-cursor-col-resize>A</td>
+    <td cell-cursor-col-resize>B</td>
+    <td cell-cursor-col-resize>C</td>
+  </tr>
+</table>
+```
+
+### cell-cursor-row-resize
+
+create drag resize handler.
+
+```html
+<table>
+  <tr>
+    <td cell-cursor-row-resize>A</td>
+  </tr>
+  <tr>
+    <td cell-cursor-row-resize>B</td>
+  </tr>
+  <tr>
+    <td cell-cursor-row-resize>C</td>
+  </tr>
+</table>
+```
+
