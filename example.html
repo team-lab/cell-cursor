@@ -97,17 +97,17 @@ tr.cursor .id{
 	<thead>
 		<tr>
 			<td></td>
-			<td>name</td>
-			<td ng-hide="hideMail">mail</td>
-			<td ng-hide="hideAge">age</td>
-			<td>admin</td>
+			<td cell-cursor-col-resize>name</td>
+			<td cell-cursor-col-resize ng-hide="hideMail">mail</td>
+			<td cell-cursor-col-resize ng-hide="hideAge">age</td>
+			<td cell-cursor-col-resize>admin</td>
 			<!-- complex columns sample -->
-			<td ng-repeat="i in cols track by i">{{i}}</td>
+			<td ng-repeat="i in cols track by i" cell-cursor-col-resize>{{i}}</td>
 		</tr>
 	</thead>
 	<tbody>
 		<tr ng-repeat="user in userList|filter:query|limitTo:limit:start as result" ng-class="{error:isError(user)}">
-			<td class="id">
+			<td class="id" cell-cursor-row-resize>
 				<!-- drag-drop handle -->
 				<span ng-show="!query" class="drag-handler"
 					cell-cursor-Drag="cc">＝</span>
