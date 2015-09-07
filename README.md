@@ -1,7 +1,7 @@
 angular Cell Cursor
 ===================
 
-Simple excel like spreadsheet development kit for angualrJs.
+Simple excel like spreadsheet development kit for angularJs.
 
   * display table cell cursor like Excel.
     * user can move cursor by mouse or keyboad ( <kbd>ARROW</kbd> ).
