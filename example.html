@@ -101,17 +101,17 @@ tr .wrap{
 	<thead>
 		<tr>
 			<td></td>
-			<td cell-cursor-col-resize>name</td>
-			<td cell-cursor-col-resize ng-hide="hideMail">mail</td>
-			<td cell-cursor-col-resize ng-hide="hideAge">age</td>
-			<td cell-cursor-col-resize>admin</td>
+			<td><div class="cell-cursor-col-resize"></div>name</td>
+			<td ng-hide="hideMail"><div class="cell-cursor-col-resize"></div>mail</td>
+			<td ng-hide="hideAge"><div class="cell-cursor-col-resize"></div>age</td>
+			<td><div class="cell-cursor-col-resize"></div>admin</td>
 			<!-- complex columns sample -->
-			<td ng-repeat="i in cols track by i" cell-cursor-col-resize>{{i}}</td>
+			<td ng-repeat="i in cols track by i"><div class="cell-cursor-col-resize"></div>{{i}}</td>
 		</tr>
 	</thead>
 	<tbody>
 		<tr ng-repeat="user in userList|filter:query|limitTo:limit:start as result" ng-class="{error:isError(user)}">
-			<td class="id" cell-cursor-row-resize>
+			<td class="id"><div class="cell-cursor-row-resize"></div>
 				<!-- drag-drop handle -->
 				<span ng-show="!query" class="drag-handler"
 					cell-cursor-Drag="cc">＝</span>

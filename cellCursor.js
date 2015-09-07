@@ -24,6 +24,21 @@ function emitAndApply(scope, emitter){
 }
 var isMSIE = typeof(MSEventObj)=='object';
 
+/** @return xpath [HTMLElement] */
+function xpath(elem, path){
+  var r = elem.ownerDocument.evaluate(path, elem, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+  for(var l=r.snapshotLength, ret=new Array(l),i=0;i<l;i++){
+    ret[i]=r.snapshotItem(i);
+  }
+  return ret;
+}
+function toArray(a){
+  for(var l=a.length, ret=new Array(l),i=0;i<l;i++){
+    ret[i]=a[i];
+  }
+  return ret;
+}
+
 function Range(pos,expanding){
   if(!pos){
     this.deselect();
@@ -34,15 +49,6 @@ function Range(pos,expanding){
 function ifMoving(old,pos){
   return (!old||old.row!=pos.row||old.col!=pos.col) ? pos : old;
 }
-/** @return xpath [HTMLElement] */
-function xpath(elem, path){
-  var r = elem.ownerDocument.evaluate(path, elem, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-  for(var l=r.snapshotLength, ret=new Array(l),i=0;i<l;i++){
-    ret[i]=r.snapshotItem(i);
-  }
-  return ret;
-}
-
 Range.prototype.setCurrent=function(pos, expanding){
   this.cursor = ifMoving(this.cursor,{
     row:pos.row,
@@ -492,6 +498,39 @@ function eventWrap(e){
   return o;
 }
 
+function appendDefaultStyle($document){
+  if(!$document[0].getElementById('cell-cursor-default-styles')){
+    $document.find('body').append($('<style id="cell-cursor-default-styles">').html(
+      ".cell-cursor-col-resize{display:block;position:absolute;width:4px;right:0;top:0;bottom:0;cursor:col-resize}\n"+
+      ".cell-cursor-row-resize{display:block;position:absolute;height:4px;right:0;left:0;bottom:0;cursor:row-resize}\n"));
+  }
+}
+
+function resizeHandler(name, elem, $document, handler){
+  var td = elem.parent();
+  if(typeof(td[0].cellIndex)=='undefined'){
+    throw new Error(name + " need to be child of td or th");
+  }
+  appendDefaultStyle($document);
+  td.css({position:'relative'});
+  elem.on('mousedown',function(e){
+    handler.mousedown(e);
+    function dragHandler(e){
+      handler.mousemove(e);
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    e.stopPropagation();
+    e.preventDefault();
+    $document.on('mousemove',dragHandler);
+    $document.one('mouseup',function(){
+      $document.off('mousemove',dragHandler);
+    });
+  }).on('dblclick',function(e){
+    handler.dblclick(e);
+  });
+}
+
 angular.module("cellCursor",[])
 .factory("CellCursor",function(){
   return CellCursor;
@@ -920,45 +959,57 @@ angular.module("cellCursor",[])
 }])
 .directive("cellCursorColResize",["$document",function($document){
   return {
+    restrict:'C',
     link:function(scope, elem, attrs){
-      var handle = angular.element('<div style="position:absolute;right:0px;width:4px;top:0;bottom:0;cursor:col-resize;">');
-      elem.prepend(handle).css({position:'relative'});
-      handle.on('mousedown',function(e){
-        var x = e.pageX, w=elem[0].offsetWidth;
-        var cols=$(xpath(elem[0],'../../../*/tr/*['+(elem[0].cellIndex+1)+']'));
-        function dragHandler(e){
-          cols.css('max-width',(w+e.pageX-x)+'px');
-          e.stopPropagation();
-          e.preventDefault();
+      var td = elem.parent();
+      function cols(){
+        return $(xpath(td[0],'ancestor::table/*/tr/*['+(td[0].cellIndex+1)+']'));
+      }
+      var w, c;
+      resizeHandler('cell-cursor-col-resize', elem, $document, {
+        mousedown:function(e){
+          w=td[0].offsetWidth - e.pageX;
+          c=cols();
+        },
+        mousemove:function(e){
+          var width = (w+e.pageX)+'px';
+          c.css({
+            'max-width':width,
+            'width':width,
+          });
+        },
+        dblclick:function(e){
+          cols().css({
+            'max-width':'',
+            'width':''
+          });
         }
-        e.stopPropagation();
-        e.preventDefault();
-        $document.on('mousemove',dragHandler);
-        $document.one('mouseup',function(){
-          $document.off('mousemove',dragHandler);
-        });
       });
     }
   };
 }])
 .directive("cellCursorRowResize",["$document",function($document){
   return {
+    restrict:'C',
     link:function(scope, elem, attrs){
-      var handle = angular.element('<div style="position:absolute;right:0px;height:4px;left:0;bottom:0;cursor:row-resize;">');
-      elem.prepend(handle).css({position:'relative'});
-      handle.on('mousedown',function(e){
-        var y = e.pageY, h=elem[0].offsetHeight;
-        function dragHandler(e){
-          elem.parent().css('height',(h+e.pageY-y)+'px');
-          e.stopPropagation();
-          e.preventDefault();
+      var td = elem.parent(), h;
+      resizeHandler('cell-cursor-row-resize', elem, $document, {
+        mousedown:function(e){
+          h=td[0].offsetHeight - e.pageY;
+        },
+        mousemove:function(e){
+          var height = (h+e.pageY)+'px';
+          td.parent().css({
+            'max-height':height,
+            'height':height
+          });
+        },
+        dblclick:function(e){
+          td.parent().css({
+            'max-height':'',
+            'height':''
+          });
         }
-        e.stopPropagation();
-        e.preventDefault();
-        $document.on('mousemove',dragHandler);
-        $document.one('mouseup',function(){
-          $document.off('mousemove',dragHandler);
-        });
       });
     }
   };
