@@ -26,6 +26,9 @@ table.table-data td{
 tr.cursor .id{
 	background:#E3E3E3;
 }
+tr .wrap{
+	overflow: hidden;
+}
 
 </style>
 <body>
@@ -52,6 +55,7 @@ tr.cursor .id{
 <li>user can copy range values to Excel. (<kbd>ctrl</kbd>+<kbd>C</kbd>)</li>
 <li>user can paste range values from Excel.  (<kbd>ctrl</kbd>+<kbd>V</kbd>)</li>
 <li>user can edit cell value.(<kbd>ENTER</kbd>,<kbd>F2</kbd>, or direct input for example <kbd>a</kbd>)</li>
+<li>user can drag to resize column or row.</li>
 <li>Easy to extend.</li>
 </ul>
 
@@ -97,17 +101,17 @@ tr.cursor .id{
 	<thead>
 		<tr>
 			<td></td>
-			<td>name</td>
-			<td ng-hide="hideMail">mail</td>
-			<td ng-hide="hideAge">age</td>
-			<td>admin</td>
+			<td cell-cursor-col-resize>name</td>
+			<td cell-cursor-col-resize ng-hide="hideMail">mail</td>
+			<td cell-cursor-col-resize ng-hide="hideAge">age</td>
+			<td cell-cursor-col-resize>admin</td>
 			<!-- complex columns sample -->
-			<td ng-repeat="i in cols track by i">{{i}}</td>
+			<td ng-repeat="i in cols track by i" cell-cursor-col-resize>{{i}}</td>
 		</tr>
 	</thead>
 	<tbody>
 		<tr ng-repeat="user in userList|filter:query|limitTo:limit:start as result" ng-class="{error:isError(user)}">
-			<td class="id">
+			<td class="id" cell-cursor-row-resize>
 				<!-- drag-drop handle -->
 				<span ng-show="!query" class="drag-handler"
 					cell-cursor-Drag="cc">＝</span>
@@ -116,10 +120,10 @@ tr.cursor .id{
 
 			<!-- using ng-model with getter-setter sample -->
 			<td ng-dblclick="cc.openEditor()" ng-hide="hideName" ng-model="user.nameSet" ng-model-options="{getterSetter:true}"
-				cell-cursor-options="{editor:'text'}">{{user.name}}</td>
+				cell-cursor-options="{editor:'text'}"><div class="wrap">{{user.name}}</div></td>
 
 			<!-- using ng-model and setter sample -->
-			<td ng-dblclick="cc.openEditor()" ng-model="user.email" cell-cursor-options="{editor:'text',setter:emailSetter(user)}">{{user.email}}</td>
+			<td ng-dblclick="cc.openEditor()" ng-model="user.email" cell-cursor-options="{editor:'text',setter:emailSetter(user)}"><div class="wrap">{{user.email}}</div></td>
 
 			<!-- using delegate `input` sample -->
 			<td cell-cursor-options="{input:'input'}"><input type="number" ng-model="user.age" style="width:50px" /></td>

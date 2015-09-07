@@ -1,15 +1,18 @@
-Cell Cursor
-===========
+angular Cell Cursor
+===================
 
-Simple excel like spreadsheet development kit for angualrJs.
+Simple excel like spreadsheet development kit for angularJs.
 
   * display table cell cursor like Excel.
-    * user can move cursor by mouse or keyboad.
-  * range selection like Excel.
-  * user can copy range values to Excel.
-  * user can paste range values from Excel.
-  * user can edit cell value.
+    * user can move cursor by mouse or keyboad ( <kbd>ARROW</kbd> ).
+  * range selection like Excel (mouse drag or <kbd>shift</kbd>+<kbd>ARROW</kbd> , <kbd>ESC</kbd> to deselect).
+  * user can copy range values to Excel (<kbd>ctrl</kbd>+<kbd>C</kbd>).
+  * user can paste range values from Excel (<kbd>ctrl</kbd>+<kbd>V</kbd>).
+  * user can edit cell value (<kbd>ENTER</kbd>,<kbd>F2</kbd>, or direct input for example <kbd>a</kbd>).
+  * user can drag to resize column or row.
   * Easy to extend.
+
+![capture](https://dl.dropboxusercontent.com/u/196431/2e2b55af748a0224496ba709af86fa80.png)
 
 DEMO
 ----
@@ -50,7 +53,7 @@ directives
 When `copy` called, then set data to clipboard.
 
 ```html
-  <div ng-init="items=[{id:1,name:'apple'},{id:2,name:'orange'},{id:3,name:'banana'}]">
+  <div ng-app="app" ng-controller="rootCtrl">
     <table tabindex="0" cell-cursor="x" cell-cursor-copy="x.getSelectedCellValues()|cellCursorToTsv">
     	<tbody>
 	    	<tr ng-repeat="i in items">
@@ -63,14 +66,16 @@ When `copy` called, then set data to clipboard.
     </table>
   </div>
   <script>
-	function rootCtrl($scope){
+  angular.module('app',['cellCursor'])
+  .controller('rootCtrl',['$scope',function($scope){
+    $scope.items=[{id:1,name:'apple'},{id:2,name:'orange'},{id:3,name:'banana'}];
 		// create getter
 		$scope.getName=function(i){
 			return function(){
 				return "["+i.name+"]";
 			}
 		}	
-	}
+	}]);
 	</script>
 ```
 
@@ -84,7 +89,7 @@ When press `ctrl+v` called, then get data from clipboard.
 Expression scope has `$data` it is clipboard data.
 
 ```html
-  <div ng-init="items=[{id:1,name:'apple'},{id:2,name:'orange'},{id:3,name:'banana'}]">
+  <div ng-app="app" ng-controller="rootCtrl">
     <table tabindex="0" cell-cursor="x" cell-cursor-paste="x.setSelectedCellValues($data)">
     	<tbody>
 	    	<tr ng-repeat="i in items">
@@ -99,7 +104,9 @@ Expression scope has `$data` it is clipboard data.
     <button ng-click="readonly=!readonly">readonly({{readonly}})</button>
   </div>
   <script>
-	function rootCtrl($scope){
+  angular.module('app',['cellCursor'])
+  .controller('rootCtrl',['$scope',function($scope){
+    $scope.items=[{id:1,name:'apple'},{id:2,name:'orange'},{id:3,name:'banana'}];
 		// create setter
 		$scope.setName=function(i){
 			return function(v){
@@ -108,7 +115,7 @@ Expression scope has `$data` it is clipboard data.
 				}
 			}
 		}
-	}
+	}]);
 	</script>
 ```
 
@@ -144,4 +151,75 @@ event called now `keydown`|`keypress`|`keydown`|`compositionstart`|`compositionu
   </div>
 ```
 
+### cell-cursor-drag
+
+`cell-cursor-drag="expression"`
+
+expression indicate `CellCursor` object.
+
+```html
+  <div ng-app="app" ng-controller="rootCtrl">
+    <table tabindex="0" cell-cursor="x">
+      <tbody>
+        <tr ng-repeat="i in items">
+          <td ng-model="i.id" ng-readonly="readonly" cell-cursor-drag="x">{{i.name}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <script>
+  angular.module('app',['cellCursor'])
+  .controller('rootCtrl',['$scope',function($scope){
+    $scope.items=[{id:1,name:'apple'},{id:2,name:'orange'},{id:3,name:'banana'}];
+    // after initialized handler
+    $scope.$on("cellCursor",function(e, cellCursor, name){
+      if(name=='x'){
+        // set drag handler
+        cellCursor.$on("cellCursor.drag",function(e, fromPos, toPos){
+          if(fromPos.row!=toPos.row){
+            // cut & paste
+            var s = $scope.items.splice(fromPos.row,1);
+            $scope.items.splice.apply($scope.items,[toPos.row,0].concat(s));
+            fromPos.row = toPos.row;
+          }else{
+            e.preventDefault();
+          }
+        });
+      }
+    });
+  }]);
+  </script>
+```
+
+### cell-cursor-col-resize
+
+create drag resize handler.
+
+```html
+<table>
+  <tr>
+    <td cell-cursor-col-resize>A</td>
+    <td cell-cursor-col-resize>B</td>
+    <td cell-cursor-col-resize>C</td>
+  </tr>
+</table>
+```
+
+### cell-cursor-row-resize
+
+create drag resize handler.
+
+```html
+<table>
+  <tr>
+    <td cell-cursor-row-resize>A</td>
+  </tr>
+  <tr>
+    <td cell-cursor-row-resize>B</td>
+  </tr>
+  <tr>
+    <td cell-cursor-row-resize>C</td>
+  </tr>
+</table>
+```
 
