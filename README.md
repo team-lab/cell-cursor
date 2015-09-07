@@ -193,32 +193,35 @@ expression indicate `CellCursor` object.
 
 ### cell-cursor-col-resize
 
-create drag resize handler.
+drag resize handler. User can drag and resize to column width. ( in html, set style 'max-width' and 'width' to all cell elements. )
 
 ```html
 <table>
   <tr>
-    <td cell-cursor-col-resize>A</td>
-    <td cell-cursor-col-resize>B</td>
-    <td cell-cursor-col-resize>C</td>
+    <!-- set handler as class name -->
+    <!-- wrap content div that has 'overflow:hidden' if you need -->
+    <td><div class="cell-cursor-col-resize"></div><div style="overflow:hidden">This name is 'A'.</div></td>
+    <td><div class="cell-cursor-col-resize"></div><div style="overflow:hidden">This name is 'B'.</div></td>
+    <td><div class="cell-cursor-col-resize"></div><div style="overflow:hidden">This name is 'C'.</div></td>
   </tr>
 </table>
 ```
 
 ### cell-cursor-row-resize
 
-create drag resize handler.
+drag resize handler. User can drag and resize to row height. ( in html, set style 'max-height' and 'height' to tr  elements. )
 
 ```html
 <table>
   <tr>
-    <td cell-cursor-row-resize>A</td>
+    <!-- set handler as class name -->
+    <td><div class="cell-cursor-row-resize"></div>A</td>
   </tr>
   <tr>
-    <td cell-cursor-row-resize>B</td>
+    <td><div class="cell-cursor-row-resize"></div>B</td>
   </tr>
   <tr>
-    <td cell-cursor-row-resize>C</td>
+    <td><div class="cell-cursor-row-resize"></div>C</td>
   </tr>
 </table>
 ```
