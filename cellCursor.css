@@ -1,7 +1,6 @@
 table.table-data{
 	background: white;
 	border-collapse:collapse;
-  table-layout: fixed;
 }
 
 table.table-data tbody{
