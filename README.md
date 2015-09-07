@@ -9,6 +9,7 @@ Simple excel like spreadsheet development kit for angularJs.
   * user can copy range values to Excel (<kbd>ctrl</kbd>+<kbd>C</kbd>).
   * user can paste range values from Excel (<kbd>ctrl</kbd>+<kbd>V</kbd>).
   * user can edit cell value (<kbd>ENTER</kbd>,<kbd>F2</kbd>, or direct input for example <kbd>a</kbd>).
+  * user can drag to resize column or row.
   * Easy to extend.
 
 ![capture](https://dl.dropboxusercontent.com/u/196431/2e2b55af748a0224496ba709af86fa80.png)
