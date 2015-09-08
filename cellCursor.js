@@ -110,7 +110,7 @@ CellCursor.prototype.blur = function(){
 };
 /**
  * focus to table.
- * @param focus:Boolean 
+ * @param focus:Boolean
  * @return true if change focus
  */
 CellCursor.prototype.setFocus = function(focus){
@@ -385,7 +385,7 @@ CellCursor.prototype.$emit = function(){
 /**
  * @param td:HTMLTableCellElement
  * @param event:Event (type=='keydown'|'keyup'|'keypress')
- * @return isStopImmediatePropagation   
+ * @return isStopImmediatePropagation
  */
 CellCursor.prototype.onCellEvent = function(td, event){
   if(!td){
