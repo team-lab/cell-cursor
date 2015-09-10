@@ -44,6 +44,18 @@ tr .wrap{
   background:#f8f8f8;
 }
 
+.row.vdivide [class*='col-']:not(:last-child):after {
+  background: #e0e0e0;
+  width: 1px;
+  content: "";
+  display:block;
+  position: absolute;
+  top:0;
+  bottom: 0;
+  right: 0;
+  min-height: 70px;
+}
+
 </style>
 <body>
 
@@ -75,15 +87,14 @@ tr .wrap{
 
 </div>
 
-
 <div id="mainApp">
 <div ng-app="tableDataExample" ng-controller="rootCtrl">
 
-<div class="row">
-  <div class="col-sm-6 well">
-    <h4>implemented by normal angular.js</h4>
+<div class="row vdivide well">
+  <div class="col-sm-6">
+    <h3 style="text-align:center">Using angular.js power</h3>
     <ul>
-      <li>repeat `tr` is `ng-repeat`</li>
+      <li>repeat `tr` is `ng-repeat` and filters</li>
       <li>DELETE button(it remove item from array)</li>
       <li>header click and sort(`orderBy` and `ng-show` ▲▼)</li>
     </ul>
@@ -103,8 +114,8 @@ tr .wrap{
     <button ng-click="cols.push(cols.length)">+</button>
     <button ng-click="cols.pop()">-</button>
   </div>
-  <div class="col-sm-6 well">
-    <h4>cell-cursor features.</h4>
+  <div class="col-sm-6">
+    <h3 style="text-align:center">Using cell-cursor features</h3>
     <ul>
       <li>column width(and row height) resize by drag (`cell-cursor-drag` directive)</li>
       <li>Sort by drag <span class="dragable"><span class="drag-handler">＝</span></span> (`cell-cursor-row-resize` and `cell-cursor-row-resize` directive)</li>
@@ -116,8 +127,8 @@ tr .wrap{
     <button ng-click="cc.selectMove({row:-1})">↑</button>
     <button ng-click="cc.selectMove({row:1})">↓</button>
     <button ng-click="cc.selectMove({col:-1})">←</button>
-    <button ng-click="cc.selectMove({col:1})">→</button>
-    <button ng-click="cc.setSelectedCellValues([['good','bad'],['good','bad@example.com']])">setSelectedCellValues([['good','bad'],['good','bad@example.com']])</button>
+    <button ng-click="cc.selectMove({col:1})">→</button><br />
+    <button ng-click="cc.setSelectedCellValues([['good','bad'],['good','bad@example.com']])">setSelectedCellValues([['good','bad'],['good','bad@example.com']])</button><br />
     <button ng-click="cc.focus()">focus</button>
     <button ng-click="cc.blur()">blur</button>
   </div>
