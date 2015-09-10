@@ -205,6 +205,7 @@ CellCursor.prototype.getSelectedRows=function(selected){
   if(!selected.cursor) return ret;
   var rows = this.rows();
   for(var i=selected.topLeft.row,l=selected.bottomRight.row;i<=l;i++){
+    if(!rows[i])break;
     ret.push({row:i,tr:rows[i]});
   }
   return ret;
@@ -378,7 +379,7 @@ CellCursor.prototype.keyMoveHandler = function(e){
 CellCursor.prototype.$on = function(){
   return this.scope.$on.apply(this.scope, arguments);
 };
-/** emmit event */
+/** emit event */
 CellCursor.prototype.$emit = function(){
   return this.scope.$emit.apply(this.scope, arguments);
 };
@@ -506,28 +507,71 @@ function appendDefaultStyle($document){
   }
 }
 
-function resizeHandler(name, elem, $document, handler){
+function stopEvent(e){
+  e.stopPropagation();
+  e.preventDefault();
+  e.stopImmediatePropagation();
+}
+function resizeHandler(name, elem, cellCursor, handler){
   var td = elem.parent();
+  var $document = angular.element(elem[0].ownerDocument);
   if(typeof(td[0].cellIndex)=='undefined'){
     throw new Error(name + " need to be child of td or th");
+  }
+  function tdSize(){
+    return {
+      width:td[0].offsetWidth,
+      height:td[0].offsetHeight
+    };
+  }
+  function tdPos(){
+    return {
+      col:td[0].cellIndex,
+      row:td[0].parentNode.sectionRowIndex
+    };
   }
   appendDefaultStyle($document);
   td.css({position:'relative'});
   elem.on('mousedown',function(e){
-    handler.mousedown(e);
-    function dragHandler(e){
-      handler.mousemove(e);
-      e.stopPropagation();
-      e.preventDefault();
+    var base = tdSize(), pos = tdPos();
+    if(cellCursor){
+      var e2 = cellCursor.$emit(name+".start", pos, tdSize());
+      if(e2.defaultPrevented) return false;
     }
-    e.stopPropagation();
-    e.preventDefault();
+    handler.init(base);
+    base.width -= e.pageX;
+    base.height -= e.pageY;
+    stopEvent(e);
+    function dragHandler(e){
+      var size = {
+        width:base.width+e.pageX,
+        height:base.height+e.pageY,
+      };
+      if(cellCursor){
+        var e2 = cellCursor.$emit(name+".resizing", pos, size, tdSize());
+        if(e2.defaultPrevented) return false;
+      }
+      handler.resize(size);
+      stopEvent(e);
+      if(cellCursor){
+        cellCursor.$emit(name+".resized", pos, tdSize());
+      }
+    }
     $document.on('mousemove',dragHandler);
-    $document.one('mouseup',function(){
+    $document.one('mouseup',function(e){
+      stopEvent(e);
+      if(cellCursor) cellCursor.$emit(name + ".end", pos, tdSize());
       $document.off('mousemove',dragHandler);
     });
   }).on('dblclick',function(e){
-    handler.dblclick(e);
+    if(cellCursor){
+      var e2 = cellCursor.$emit(name+".reset", tdPos(), tdSize());
+      if(e2.defaultPrevented) return false;
+    }
+    stopEvent(e);
+    handler.reset(e);
+  }).on('click',function(e){
+    stopEvent(e);
   });
 }
 
@@ -544,6 +588,7 @@ angular.module("cellCursor",[])
       var getter = $parse(attrs.cellCursor);
       cellCursor.table = elem;
       cellCursor.scope = scope.$root.$new(true);
+      cellCursor.name = attrs.cellCursor;
       getter.assign(scope,cellCursor);
       elem.on("mousedown",function(e){
         var td = cellCursor.closestCell(e.target);
@@ -598,7 +643,7 @@ angular.module("cellCursor",[])
         elem.toggleClass("focus",v);
       });
       setTimeout(function(){
-        emitAndApply(scope,scope)("cellCursor",cellCursor,attrs.cellCursor);
+        emitAndApply(scope,scope)("cellCursor",cellCursor,cellCursor.name);
       });
     }
   };
@@ -959,26 +1004,29 @@ angular.module("cellCursor",[])
 }])
 .directive("cellCursorColResize",["$document",function($document){
   return {
+    require:'^?cellCursor',
     restrict:'C',
-    link:function(scope, elem, attrs){
+    link:function(scope, elem, attrs, cellCursor){
       var td = elem.parent();
       function cols(){
         return $(xpath(td[0],'ancestor::table/*/tr/*['+(td[0].cellIndex+1)+']'));
       }
-      var w, c;
-      resizeHandler('cell-cursor-col-resize', elem, $document, {
-        mousedown:function(e){
-          w=td[0].offsetWidth - e.pageX;
-          c=cols();
+      var c;
+      resizeHandler('cellCursor.colResize', elem, cellCursor, {
+        init:function(size){
+          c = cols()
         },
-        mousemove:function(e){
-          var width = (w+e.pageX)+'px';
+        resize:function(size){
+          var width = size.width+'px';
           c.css({
             'max-width':width,
             'width':width,
           });
         },
-        dblclick:function(e){
+        finish:function(size){
+          scope.$apply();
+        },
+        reset:function(e){
           cols().css({
             'max-width':'',
             'width':''
@@ -990,21 +1038,25 @@ angular.module("cellCursor",[])
 }])
 .directive("cellCursorRowResize",["$document",function($document){
   return {
+    require:'^?cellCursor',
     restrict:'C',
-    link:function(scope, elem, attrs){
-      var td = elem.parent(), h;
-      resizeHandler('cell-cursor-row-resize', elem, $document, {
-        mousedown:function(e){
-          h=td[0].offsetHeight - e.pageY;
+    link:function(scope, elem, attrs, cellCursor){
+      var td = elem.parent();
+      resizeHandler('cellCursor.rowResize', elem, cellCursor, {
+        init:function(size){
+          td = elem.parent();
         },
-        mousemove:function(e){
-          var height = (h+e.pageY)+'px';
+        resize:function(size){
+          var height = size.height+'px';
           td.parent().css({
             'max-height':height,
             'height':height
           });
         },
-        dblclick:function(e){
+        finish:function(size){
+          scope.$apply();
+        },
+        reset:function(e){
           td.parent().css({
             'max-height':'',
             'height':''

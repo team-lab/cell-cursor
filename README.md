@@ -74,7 +74,7 @@ When `copy` called, then set data to clipboard.
 			return function(){
 				return "["+i.name+"]";
 			}
-		}	
+		}
 	}]);
 	</script>
 ```
@@ -191,9 +191,23 @@ expression indicate `CellCursor` object.
   </script>
 ```
 
+#### Events
+
+cell-cursor-drag emit event to cellCursor.
+
+ * `$emit("cellCursor.drag.start", pos)`
+   * on mousedown
+ * `$emit("cellCursor.drag", fromPos, toPos)`
+   * on mousemove to othre cell
+ * `$emit("cellCursor.drag.end", pos)`
+   * on mouseup
+
+argument `pos` is target cell position object `{row, col}`.
+
+
 ### cell-cursor-col-resize
 
-drag resize handler. User can drag and resize to column width. ( in html, set style 'max-width' and 'width' to all cell elements. )
+drag resize handler. User can drag and resize to column width. ( in html, set style 'max-width' and 'width' to all cell elements. ) and reset by dblclick.
 
 ```html
 <table>
@@ -207,9 +221,31 @@ drag resize handler. User can drag and resize to column width. ( in html, set st
 </table>
 ```
 
+#### Events
+
+cell-cursor-row-resize emit event to cellCursor.
+
+ * `$emit("cellCursor.colResize.start", pos, size)`
+   * on mousedown
+   * can cancel by call event.preventDefault().
+ * `$emit("cellCursor.colResize.resizing", pos, newSize, oldSize)`
+   * on mousemove before resize
+   * can cancel by call event.preventDefault().
+   * can modify size by modify argument `newSize.width`.
+ * `$emit("cellCursor.colResize.resized", pos, size)`
+   * on mousemove after resize
+ * `$emit("cellCursor.colResize.end`, pos, size)`
+   * on mouseup
+ * `$emit("cellCursor.colResize.reset`, pos, size)`
+   * on dblclick
+   * can cancel by call event.preventDefault().
+
+argument `pos` is target cell position object `{row, col}`.
+argument `size` is target cell size object `{width, height}`.
+
 ### cell-cursor-row-resize
 
-drag resize handler. User can drag and resize to row height. ( in html, set style 'max-height' and 'height' to tr  elements. )
+drag resize handler. User can drag and resize to row height. ( in html, set style 'max-height' and 'height' to tr  elements. ) and reset by dblclick.
 
 ```html
 <table>
@@ -226,3 +262,24 @@ drag resize handler. User can drag and resize to row height. ( in html, set styl
 </table>
 ```
 
+#### Events
+
+cell-cursor-row-resize emit event to cellCursor.
+
+ * `$emit("cellCursor.rowResize.start", pos, size)`
+   * on mousedown
+   * can cancel by call event.preventDefault().
+ * `$emit("cellCursor.rowResize.resizing", pos, newSize, oldSize)`
+   * on mousemove before resize
+   * can cancel by call event.preventDefault().
+   * can modify size by modify argument `newSize.height`.
+ * `$emit("cellCursor.rowResize.resized", pos, size)`
+   * on mousemove after resize
+ * `$emit("cellCursor.rowResize.end`, pos, size)`
+   * on mouseup
+ * `$emit("cellCursor.rowResize.reset`, pos, size)`
+   * on dblclick
+   * can cancel by call event.preventDefault().
+
+argument `pos` is target cell position object `{row, col}`.
+argument `size` is target cell size object `{width, height}`.
