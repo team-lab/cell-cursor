@@ -5,9 +5,6 @@
 <link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/isagalaev/highlight.js/d9b73e9f34aac58ecbc642925278afd8e7e170b1/src/styles/github.css">
 <link rel="stylesheet" type="text/css" href="cellCursor.css" />
 <style>
-body{
-  background: #eeeeee;
-}
 table.table-data tr.error{
   background:#f2dede;
 }
@@ -55,19 +52,28 @@ tr .wrap{
   right: 0;
   min-height: 70px;
 }
-
+.hljs-comment, .diff .hljs-header {
+  color: #FFF;
+  background-color: #677130;
+  font-style: normal;
+}
 </style>
 <body>
-
+<a href="https://github.com/team-lab/cell-cursor"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/a6677b08c955af8400f44c6298f40e7d19cc5b2d/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a>
 
 <div class="container">
-<div class="page-header">
+<div class="page-header" style="border-bottom:none">
+<div class="row">
+  <div class="col-sm-6">
 
 <h1>angular Cell Cursor DEMO</h1>
 
 <p class="lead">
-<a href="https://github.com/team-lab/cell-cursor">https://github.com/team-lab/cell-cursor</a>
+<a href="https://github.com/team-lab/cell-cursor">https://github.com/team-lab/cell-cursor</a><br />
+<a href="https://www.npmjs.com/package/cell-cursor">https://www.npmjs.com/package/cell-cursor</a>
 </p>
+</div>
+<div class="col-sm-6">
 
 <p>Simple excel like spreadsheet development kit for angualrJs.</p>
 
@@ -84,13 +90,14 @@ tr .wrap{
 <li>user can drag to resize column or row.</li>
 <li>Easy to extend.</li>
 </ul>
-
+  </div>
 </div>
+  </div>
 
 <div id="mainApp">
 <div ng-app="tableDataExample" ng-controller="rootCtrl">
 
-<div class="row vdivide well">
+<div class="row vdivide">
   <div class="col-sm-6">
     <h3 style="text-align:center">Using angular.js power</h3>
     <ul>
@@ -134,7 +141,11 @@ tr .wrap{
   </div>
 </div>
 
-<div style="overflow:hidden">
+<div class="row" style="margin-top:2em;background:#eeeeee;padding-top:1em;padding-bottom:1em;">
+<div class="col-sm-12">
+<!-- copy and paste handler -->
+<!-- overwrite keydown handler -->
+<!-- ng-class is hide drag-handler if can't draggable (css trick) -->
 <table class="table-data" style="float:left"
   cell-cursor="cc"
   cell-cursor-copy="cc.getSelectedCellValues()|cellCursorToTsv"
@@ -144,9 +155,11 @@ tr .wrap{
   <thead>
     <tr>
       <td></td>
+      <!-- changeSort is change $scope.sort -->
       <td ng-click="changeSort('name')">
         <div class="cell-cursor-col-resize"></div>
         name
+        <!-- sort key indicator example -->
         <span ng-show="sort=='name'">▲</span>
         <span ng-show="sort=='-name'">▼</span>
       </td>
@@ -167,6 +180,7 @@ tr .wrap{
     </tr>
   </thead>
   <tbody>
+    <!-- angular.js default directive `ng-repeat` and default filters -->
     <tr ng-repeat="user in userList|filter:query|orderBy:sort|limitTo:limit:start as result" ng-class="{error:isError(user)}">
       <td class="id"><div class="cell-cursor-row-resize"></div>
         <!-- drag-drop handle -->
@@ -196,6 +210,7 @@ tr .wrap{
   </tbody>
 </table>
 <div style="float:left;width:200px;padding-left:10px;">
+<h4>VALUES from cellCursor object</h4>
 hasFocus={{cc.hasFocus}}<br />
 <br />
 selected={{cc.selected}}<br />
@@ -203,6 +218,7 @@ selected={{cc.selected}}<br />
 getSelectedCellValues()={{cc.getSelectedCellValues()}}<br />
 <br />
 users={{exportSelected()}}
+</div>
 </div>
 </div>
 </div>
@@ -362,6 +378,7 @@ angular.module("tableDataExample",["cellCursor"])
     return user.name == "bad";
   };
 
+  // delete click handler
   $scope.delete=function(user){
     var i = $scope.userList.indexOf(user);
     if(i!=-1){
@@ -395,10 +412,10 @@ angular.module("tableDataExample",["cellCursor"])
   }
 }]);
 </script>
-<hr />
 <!-- for highlight -->
 <div class="row code">
-<div class="col-sm-12"><h3>THIS PAGE CODE</h3></div>
+<div class="col-sm-12"><h3>THIS DEMO's CODE</h3></div>
+<div id="codes">
 <script>
 document.write('<div class="col-sm-6"><h4>HTML</h4><pre><code class="html">');
 document.write(document.getElementById("mainApp").innerHTML.replace(/</g,'&lt;').trim());
@@ -407,6 +424,7 @@ document.write('<div class="col-sm-6"><h4>JAVASCRIPT</h4><pre><code class="javas
 document.write(document.getElementById("script").innerHTML.trim());
 document.write('</code></pre></div>');
 </script>
+</div>
 
 </div>
 </div>
