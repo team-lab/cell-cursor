@@ -39,6 +39,72 @@ function toArray(a){
   return ret;
 }
 
+function oddQuotes(str) {
+  return (str.split('"').length - 1) & 1;
+}
+function tsvParse(text){
+  if (typeof(text)!='string') {
+    return text;
+  }
+  var ret = [];
+  var rows = text.split('\n');
+  if (rows.length && rows[rows.length - 1] === '') {
+    rows.pop();
+  }
+
+  var cr, multiline=false;
+  for (var r = 0, rLen = rows.length; r < rLen; r ++) {
+    if (!multiline) {
+      cr = [];
+      ret.push(cr);
+    }
+    var cols = rows[r].split('\t');
+    for (var c = 0, cLen = cols.length; c < cLen; c ++) {
+      var col = cols[c];
+      if (multiline && c === 0) {
+        if (oddQuotes(col)) {
+          multiline = false;
+          col = col.substring(0, col.length - 1).replace(/""/g, '"');
+        }
+        cr[cr.length-1] += '\n' + col;
+      } else {
+        if (c === cLen - 1 && col.charAt(0)=='"' && oddQuotes(col)) {
+          col = col.substring(1);
+          multiline = true;
+        } else {
+          multiline = false;
+        }
+        cr.push(col.replace(/""/g, '"'));
+      }
+    }
+  }
+  return ret;
+}
+function tsvBuild(arr){
+  if(arr && arr.length){
+    var str = [];
+    for(var i=0;i<arr.length;i++){
+      var a = arr[i];
+      var r = [];
+      for(var j=0;j<a.length;j++){
+        var v = a[j];
+        if(typeof(v)=='string'){
+          if(v.indexOf("\n") > -1){
+            r.push('"' + v.replace(/"/g, '""') + '"');
+          }else{
+            r.push(v);
+          }
+        }else{
+          r.push((v === null || v === undefined) ? "" : v);
+        }
+      }
+      str.push(r.join("\t"));
+    }
+    return str.join("\n");
+  }
+  return arr;
+}
+
 function Range(pos,expanding){
   if(!pos){
     this.deselect();
@@ -181,7 +247,7 @@ CellCursor.prototype.td=function(pos){
 };
 /**
  * @param td:HTMLTableCellElement
- * @return true if td is in this table.tbody 
+ * @return true if td is in this table.tbody
  */
 CellCursor.prototype.isTd=function(td){
   return td && td.parentNode && td.parentNode.parentNode==this.tBody();
@@ -284,6 +350,7 @@ CellCursor.prototype.getSelectedCellValues=function(selected){
  */
 CellCursor.prototype.setSelectedCellValues=function(values, selected){
   if(!values) return;
+  if(typeof(values)=='string')values=tsvParse(values);
   if(!angular.isArray(values))values=[values];
   var rows = this.getSelectedCells(selected);
   for(var r=0;r<rows.length && (r in values);r++){
@@ -926,38 +993,10 @@ angular.module("cellCursor",[])
   };
 }])
 .filter("tsvToCellCursor",[function(){
-  return function(text){
-    if (typeof(text)=='string') {
-      var data = [];
-      text.split(/[\n\f\r]/).forEach(function (thisRow) {
-        data.push(thisRow.split("\t"));
-      });
-      return data;
-    }
-    return text;
-  };
+  return tsvParse;
 }])
 .filter("cellCursorToTsv",[function(){
-  return function(arr){
-    if(arr && arr.length){
-      var str = [];
-      for(var i=0;i<arr.length;i++){
-        var a = arr[i];
-        var r = [];
-        for(var j=0;j<a.length;j++){
-          var v = a[j];
-          if (typeof(v)=='string' && v.indexOf('\n') > -1) {
-            r.push('"' + v.replace(/"/g, '""') + '"');
-          }else {
-            r.push(v);
-          }
-        }
-        str.push(r.join("\t"));
-      }
-      return str.join("\n");
-    }
-    return arr;
-  };
+  return tsvBuild;
 }])
 .directive("cellCursorCopy",["$document","$parse",'$window',function($document,$parse,$window){
   return {
@@ -979,7 +1018,6 @@ angular.module("cellCursor",[])
   };
 }])
 .directive("cellCursorPaste",["$document",'$filter','$window',function($document, $filter, $window){
-  var f=$filter("tsvToCellCursor");
   return {
     require:'cellCursor',
     link:function(scope, elem, attrs, cellCursor){
@@ -1014,7 +1052,7 @@ angular.module("cellCursor",[])
       var c;
       resizeHandler('cellCursor.colResize', elem, cellCursor, {
         init:function(size){
-          c = cols()
+          c = cols();
         },
         resize:function(size){
           var width = size.width+'px';
