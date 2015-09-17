@@ -1,47 +1,79 @@
 <!DOCTYPE html><html>
 <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" integrity="sha256-MfvZlkHCEqatNoGiOXveE8FIwMzZg4W85qfrfIFBfYc= sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/styles/default.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/isagalaev/highlight.js/d9b73e9f34aac58ecbc642925278afd8e7e170b1/src/styles/github.css">
 <link rel="stylesheet" type="text/css" href="cellCursor.css" />
 <style>
-body{
-	background: #eeeeee;
-}
 table.table-data tr.error{
-	background:#f2dede;
+  background:#f2dede;
 }
 table.table-data td{
-	padding:4px;
+  padding:4px;
 }
 table.table-data td{
-	padding:4px;
+  padding:4px;
+}
+thead td[ng-click]{
+  cursor: pointer;
 }
 .drag-handler{
-	border:outset 1px lightgray;
-	cursor:row-resize;
-	font-size:60%;
-	margin:4px;
+  visibility: hidden;
 }
+.dragable .drag-handler{
+  visibility: visible;
+  border:outset 1px lightgray;
+  cursor:row-resize;
+  font-size:60%;
+  margin:4px;
+}
+
 .id{
-	background:#F3F3F3;
+  background:#F3F3F3;
 }
 tr.cursor .id{
-	background:#E3E3E3;
+  background:#E3E3E3;
 }
 tr .wrap{
-	overflow: hidden;
+  overflow: hidden;
+}
+.code pre{
+  background:#f8f8f8;
 }
 
+.row.vdivide [class*='col-']:not(:last-child):after {
+  background: #e0e0e0;
+  width: 1px;
+  content: "";
+  display:block;
+  position: absolute;
+  top:0;
+  bottom: 0;
+  right: 0;
+  min-height: 70px;
+}
+.hljs-comment, .diff .hljs-header {
+  color: #FFF;
+  background-color: #677130;
+  font-style: normal;
+}
 </style>
 <body>
-
+<a href="https://github.com/team-lab/cell-cursor"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/a6677b08c955af8400f44c6298f40e7d19cc5b2d/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a>
 
 <div class="container">
-<div class="page-header">
+<div class="page-header" style="border-bottom:none">
+<div class="row">
+  <div class="col-sm-6">
 
 <h1>angular Cell Cursor DEMO</h1>
 
 <p class="lead">
-<a href="https://github.com/team-lab/cell-cursor">https://github.com/team-lab/cell-cursor</a>
+<a href="https://github.com/team-lab/cell-cursor">https://github.com/team-lab/cell-cursor</a><br />
+<a href="https://www.npmjs.com/package/angular-cell-cursor">https://www.npmjs.com/package/angular-cell-cursor</a>
 </p>
+</div>
+<div class="col-sm-6">
 
 <p>Simple excel like spreadsheet development kit for angualrJs.</p>
 
@@ -58,240 +90,344 @@ tr .wrap{
 <li>user can drag to resize column or row.</li>
 <li>Easy to extend.</li>
 </ul>
+  </div>
+</div>
+  </div>
 
+<div id="mainApp">
+<div ng-app="tableDataExample" ng-controller="rootCtrl">
+
+<div class="row vdivide">
+  <div class="col-sm-6">
+    <h3 style="text-align:center">Using angular.js power</h3>
+    <ul>
+      <li>repeat `tr` is `ng-repeat` and filters</li>
+      <li>DELETE button(it remove item from array)</li>
+      <li>header click and sort(`orderBy` and `ng-show` ▲▼)</li>
+    </ul>
+    filter:<input type="text" ng-model="query"  />
+    orderBy:<select ng-model="sort" ng-options="s for s in ['','name','-name','email','-email','age','-age']"></select><br />
+    limitTo:<select ng-model="start" ng-options="s for s in starts"></select> ～
+    <select ng-model="limit" ng-options="s for s in [0,10,30,100,300,500,800,1000]"></select> / {{(userList|filter:query).length}} items<br />
+    <div ng-controller="sliderCtrl">
+      <div class="text-muted">dirty slider impl.</div>
+      <div style="position:relative;width:100%;height:1em;border:1px inset lightgray" ng-mousedown="container($event)" id="slider-box">
+        <div style="position:absolute;height:100%;background:#888;cursor:ew-resize" ng-style="{width:((limit/userList.length)*100)+'%',left:((start/userList.length)*100)+'%'}" ng-mousedown="slider($event)"></div>
+      </div>
+    </div>
+    <button ng-click="hideMail=!hideMail">Hide mail</button>
+    <button ng-click="hideAge=!hideAge">Hide age</button>
+  &nbsp;&nbsp;
+    <button ng-click="cols.push(cols.length)">+</button>
+    <button ng-click="cols.pop()">-</button>
+  </div>
+  <div class="col-sm-6">
+    <h3 style="text-align:center">Using cell-cursor features</h3>
+    <ul>
+      <li>column width(and row height) resize by drag (`cell-cursor-drag` directive)</li>
+      <li>Sort by drag <span class="dragable"><span class="drag-handler">＝</span></span> (`cell-cursor-row-resize` and `cell-cursor-row-resize` directive)</li>
+      <li>cursor and range controll</li>
+      <li>cell editor</li>
+    </ul>
+    <button ng-click="cc.select({row:0,col:0},{row:-1,col:-1})">select()</button>
+    <button ng-click="cc.deselect()">deselect()</button>
+    <button ng-click="cc.selectMove({row:-1})">↑</button>
+    <button ng-click="cc.selectMove({row:1})">↓</button>
+    <button ng-click="cc.selectMove({col:-1})">←</button>
+    <button ng-click="cc.selectMove({col:1})">→</button><br />
+    <button ng-click="cc.setSelectedCellValues([['good','bad'],['good','bad@example.com']])">setSelectedCellValues([['good','bad'],['good','bad@example.com']])</button><br />
+    <button ng-click="cc.focus()">focus</button>
+    <button ng-click="cc.blur()">blur</button>
+  </div>
 </div>
 
-
-<div ng-app="tableDataExample" ng-controller="rootCtrl">
-<input type="text" ng-model="query"  />
-
-<select ng-model="start" ng-options="s for s in [0,10,20,30,40,50,60,70,80,90,100]"></select> ～
-<select ng-model="limit" ng-options="s for s in [10,30,100,300,500,800,1000]"></select> / {{(userList|filter:query).length}} items<br />
-
-
-<button ng-click="hideMail=!hideMail">Hide mail</button>
-<button ng-click="hideAge=!hideAge">Hide age</button>
-&nbsp;&nbsp;
-<button ng-click="cols.push(cols.length)">+</button>
-<button ng-click="cols.pop()">-</button>
-
-<br>
-↑ controll by normal angular.js for example ng-repeat,filter,limitTo... , NOT by complex directive options.
-<br>
-<br>
-<button ng-click="cc.select({row:0,col:0},{row:-1,col:-1})">SELECT ALL</button>
-<button ng-click="cc.deselect()">DESELECT</button>
-<button ng-click="cc.selectMove({row:-1})">↑</button>
-<button ng-click="cc.selectMove({row:1})">↓</button>
-<button ng-click="cc.selectMove({col:-1})">←</button>
-<button ng-click="cc.selectMove({col:1})">→</button>
-<button ng-click="cc.setSelectedCellValues([['good','bad'],['good','bad@example.com']])">setSelectedCellValues([['good','bad'],['good','bad@example.com']])</button>
-<button ng-click="cc.focus()">focus</button>
-<button ng-click="cc.blur()">blur</button>
-<br>
-↑ controll by directive.
-<br>
-<br>
-
+<div class="row" style="margin-top:2em;background:#eeeeee;padding-top:1em;padding-bottom:1em;">
+<div class="col-sm-12">
+<!-- copy and paste handler -->
+<!-- overwrite keydown handler -->
+<!-- ng-class is hide drag-handler if can't draggable (css trick) -->
 <table class="table-data" style="float:left"
   cell-cursor="cc"
   cell-cursor-copy="cc.getSelectedCellValues()|cellCursorToTsv"
   cell-cursor-paste="cc.setSelectedCellValues($data)"
-  ng-keydown="keydown($event)">
-	<thead>
-		<tr>
-			<td></td>
-			<td><div class="cell-cursor-col-resize"></div>name</td>
-			<td ng-hide="hideMail"><div class="cell-cursor-col-resize"></div>mail</td>
-			<td ng-hide="hideAge"><div class="cell-cursor-col-resize"></div>age</td>
-			<td><div class="cell-cursor-col-resize"></div>admin</td>
-			<!-- complex columns sample -->
-			<td ng-repeat="i in cols track by i"><div class="cell-cursor-col-resize"></div>{{i}}</td>
-		</tr>
-	</thead>
-	<tbody>
-		<tr ng-repeat="user in userList|filter:query|limitTo:limit:start as result" ng-class="{error:isError(user)}">
-			<td class="id"><div class="cell-cursor-row-resize"></div>
-				<!-- drag-drop handle -->
-				<span ng-show="!query" class="drag-handler"
-					cell-cursor-Drag="cc">＝</span>
-				{{user.id}}
-			</td>
+  ng-keydown="keydown($event)"
+  ng-class="{dragable:dragable()}">
+  <thead>
+    <tr>
+      <td></td>
+      <!-- changeSort is change $scope.sort -->
+      <td ng-click="changeSort('name')">
+        <div class="cell-cursor-col-resize"></div>
+        name
+        <!-- sort key indicator example -->
+        <span ng-show="sort=='name'">▲</span>
+        <span ng-show="sort=='-name'">▼</span>
+      </td>
+      <td ng-hide="hideMail" ng-click="changeSort('email')">
+        <div class="cell-cursor-col-resize"></div>
+        email
+        <span ng-show="sort=='email'">▲</span>
+        <span ng-show="sort=='-email'">▼</span>
+      </td>
+      <td ng-hide="hideAge" ng-click="changeSort('age')"><div class="cell-cursor-col-resize"></div>
+        age
+        <span ng-show="sort=='age'">▲</span>
+        <span ng-show="sort=='-age'">▼</span>
+      </td>
+      <td><div class="cell-cursor-col-resize"></div>admin</td>
+      <!-- complex columns sample -->
+      <td ng-repeat="i in cols track by i"><div class="cell-cursor-col-resize"></div>{{i}}</td>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- angular.js default directive `ng-repeat` and default filters -->
+    <tr ng-repeat="user in userList|filter:query|orderBy:sort|limitTo:limit:start as result" ng-class="{error:isError(user)}">
+      <td class="id"><div class="cell-cursor-row-resize"></div>
+        <!-- drag-drop handle -->
+        <span class="drag-handler"
+          cell-cursor-Drag="cc">＝</span>
+        {{user.id}}
+      </td>
 
-			<!-- using ng-model with getter-setter sample -->
-			<td ng-dblclick="cc.openEditor()" ng-hide="hideName" ng-model="user.nameSet" ng-model-options="{getterSetter:true}"
-				cell-cursor-options="{editor:'text'}"><div class="wrap">{{user.name}}</div></td>
+      <!-- using ng-model with getter-setter sample -->
+      <td ng-dblclick="cc.openEditor()" ng-hide="hideName" ng-model="user.nameSet" ng-model-options="{getterSetter:true}"
+        cell-cursor-options="{editor:'text'}"><div class="wrap">{{user.name}}</div></td>
 
-			<!-- using ng-model and setter sample -->
-			<td ng-dblclick="cc.openEditor()" ng-model="user.email" cell-cursor-options="{editor:'text',setter:emailSetter(user)}"><div class="wrap">{{user.email}}</div></td>
+      <!-- using ng-model and setter sample -->
+      <td ng-dblclick="cc.openEditor()" ng-model="user.email" cell-cursor-options="{editor:'text',setter:emailSetter(user)}"><div class="wrap">{{user.email}}</div></td>
 
-			<!-- using delegate `input` sample -->
-			<td cell-cursor-options="{input:'input'}"><input type="number" ng-model="user.age" style="width:50px" /></td>
+      <!-- using delegate `input` sample -->
+      <td cell-cursor-options="{input:'input'}"><input type="number" ng-model="user.age" style="width:50px" /></td>
 
-			<!-- using delegate `input` and custome editor sample -->
-			<td cell-cursor-options="{input:'input',editor:'boolean'}"><input type="checkbox" ng-model="user.admin"></td>
+      <!-- using delegate `input` and custome editor sample -->
+      <td cell-cursor-options="{input:'input',editor:'boolean'}"><input type="checkbox" ng-model="user.admin"></td>
 
-			<!-- complex columns sample -->
-			<td ng-repeat="i in cols track by i">{{user.name.charAt(i)}}</td>
+      <!-- complex columns sample -->
+      <td ng-repeat="i in cols track by i">{{user.name.charAt(i)}}</td>
 
-			<td ><button ng-click="delete(user)">DELETE</button></td>
-		</tr>
-	</tbody>
+      <td ><button ng-click="delete(user)">DELETE</button></td>
+    </tr>
+  </tbody>
 </table>
-<div style="float:left;width:200px">
+<div style="float:left;width:200px;padding-left:10px;">
+<h4>VALUES from cellCursor object</h4>
 hasFocus={{cc.hasFocus}}<br />
 <br />
 selected={{cc.selected}}<br />
 <br />
-getSelectedCellValues={{cc.getSelectedCellValues()}}<br />
+getSelectedCellValues()={{cc.getSelectedCellValues()}}<br />
 <br />
 users={{exportSelected()}}
-<br />
-<br />
+</div>
+</div>
+</div>
+</div>
 </div>
 
-
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular.js"></script>
 <script src="./cellCursor.js"></script>
-<script>
+<script id="script">
 angular.module("tableDataExample",["cellCursor"])
 .run(function(cellEditorFactory){
-	// create cell editor
-	cellEditorFactory['boolean'] = {
-		// cell key event handler
-		cellKey:function(event, options, td, cellCursor){
-			if(event.type=='keydown'){
-				switch(event.which){
-				case 13:
-				case 32:
-	        event.stopPropagation();
-					options.setValue(!options.getValue());
-					return true;
-				}
-			}
-		},
-		// editor open handler
-		open:function(options, td, finish, cellEditor){
-			options.setValue(!options.getValue());
-			finish();
-		}
-	};
+  // create cell editor
+  cellEditorFactory['boolean'] = {
+    // cell key event handler
+    cellKey:function(event, options, td, cellCursor){
+      if(event.type=='keydown'){
+        switch(event.which){
+        case 13:
+        case 32:
+          event.stopPropagation();
+          options.setValue(!options.getValue());
+          return true;
+        }
+      }
+    },
+    // editor open handler
+    open:function(options, td, finish, cellEditor){
+      options.setValue(!options.getValue());
+      finish();
+    }
+  };
 })
 .controller("rootCtrl",["$scope",function($scope){
-	// override keydown event by ng-keydown
-	$scope.keydown=function(e){
-		if(e.keyCode==9){
-			console.log("stop",e)
-			e.stopImmediatePropagation();
-		}
-	}
-	// event on cellCursor initalized.
-	$scope.$on("cellCursor",function(e,cellCursor,name){
-		// set padding. padding is no selectable area.
-		cellCursor.padding.left=1;
-		cellCursor.padding.right=1;
-		// select by script
-		cellCursor.select({row:1,col:0},{row:2,col:2});
+  // override keydown event by ng-keydown
+  $scope.keydown=function(e){
+    if(e.keyCode==9){
+      console.log("stop",e)
+      e.stopImmediatePropagation();
+    }
+  }
+  // event on cellCursor initalized.
+  $scope.$on("cellCursor",function(e,cellCursor,name){
+    // set padding. padding is no selectable area.
+    cellCursor.padding.left=1;
+    cellCursor.padding.right=1;
+    // select by script
+    cellCursor.select({row:1,col:0},{row:2,col:2});
 
-		// drag and drop handlers from `cell-cursor-drag` directive
-		cellCursor.$on("cellCursor.drag.start",function(e,pos){
-			if(!cellCursor.selected.cursor || cellCursor.selected.topLeft.row>pos.row || pos.row>cellCursor.selected.bottomRight.row){
-				cellCursor.select({row:pos.row,col:0},{row:pos.row,col:cellCursor.size().col});
-			}else{
-				e.preventDefault()
-			}
-		});
-		cellCursor.$on("cellCursor.drag",function(e, pos, tpos){
-			if(pos.row!=tpos.row){
-				var s = $scope.userList.splice(pos.row + $scope.start,cellCursor.selected.bottomRight.row-cellCursor.selected.topLeft.row+1);
-				$scope.userList.splice.apply($scope.userList,[tpos.row + $scope.start,0].concat(s));
-				pos.row = tpos.row;
-			}else{
-				e.preventDefault();
-			}
-		})
-	});
-	// fetch row datas
-	$scope.exportSelected=function(){
-		var pos = $scope.cc.selected;
-		if(pos.cursor){
-			ret = [];
-			for(var i=pos.topLeft.row;i<=pos.bottomRight.row;i++){
-				ret.push($scope.userList[i+$scope.start]);
-			}
-			return ret;
-		}
-	}
+    // drag and drop handlers from `cell-cursor-drag` directive
+    cellCursor.$on("cellCursor.drag.start",function(e,pos){
+      if(!cellCursor.selected.cursor || cellCursor.selected.topLeft.row>pos.row || pos.row>cellCursor.selected.bottomRight.row){
+        cellCursor.select({row:pos.row,col:0},{row:pos.row,col:cellCursor.size().col});
+      }else{
+        e.preventDefault()
+      }
+    });
+    cellCursor.$on("cellCursor.drag",function(e, pos, tpos){
+      if(pos.row!=tpos.row){
+        var s = $scope.userList.splice(pos.row + $scope.start,cellCursor.selected.bottomRight.row-cellCursor.selected.topLeft.row+1);
+        $scope.userList.splice.apply($scope.userList,[tpos.row + $scope.start,0].concat(s));
+        pos.row = tpos.row;
+      }else{
+        e.preventDefault();
+      }
+    })
+  });
+  // fetch row datas
+  $scope.exportSelected=function(){
+    var pos = $scope.cc.selected;
+    if(pos.cursor){
+      ret = [];
+      for(var i=pos.topLeft.row;i<=pos.bottomRight.row;i++){
+        ret.push($scope.userList[i+$scope.start]);
+      }
+      return ret;
+    }
+  }
 
-	// create datas
-	$scope.start = 0;
-	$scope.limit = 30;
-	$scope.query = "";
-	$scope.userList=[];
-	$scope.cols = [0,1,2,3,4];
-	$scope.log=function(msg){
-		console.log(msg);
-	}
-	// setter sample
-	$scope.userNameSetter=function(user){
-		return function(val){
-			console.log('setter user.name',user.name,val);
-			user.name=val;
-		}
-	};
-	// getter sample
-	$scope.userNameGetter=function(user){
-		return function(val){
-			console.log('getter user.name',user.name,val);
-			return user.name;
-		}
-	};
-	// setter with validation sample
-	$scope.emailSetter=function(user){
-		return function(val){
-			if(!val)return;
-			val = (val||"").toString();
-			if(val.indexOf("@")==-1) return;
-			user.email=val;
-		}
-	};
+  // stop drag&drop if order is not natural
+  $scope.dragable = function(){
+    return !($scope.query||$scope.sort);
+  };
+  /** */
+  $scope.changeSort = function(name){
+    $scope.cc.deselect();
+    if($scope.sort==name){
+      $scope.sort='-'+name;
+    }else if($scope.sort=='-'+name){
+      $scope.sort='';
+    }else{
+      $scope.sort=name;
+    }
+  }
 
-	function User(obj){
-		for(var i in obj){
-			this[i]=obj[i];
-		}
-	}
-	// getterSetter for ng-model
-	User.prototype.nameSet=function(name){
-		if(arguments.length){
-			this.name = name;
-		}else{
-			return this.name;
-		}
-	}
-	for(var i=0;i<1000;i++){
-		$scope.userList.push(new User({
-			id:i,
-			name:"hoge"+i,
-			age:Math.floor(Math.random()*20+20),
-			admin:true,
-			email:"hoge"+i+"@example.com"
-		}));
-	}
-	$scope.userList[5].name="bad";
+  // create datas
+  $scope.start = 0;
+  $scope.starts = [];
+  for(var i=0;i<1000;i+=10){
+    $scope.starts.push(i);
+  }
+  $scope.sort ='';
+  $scope.limit = 10;
+  $scope.query = "";
+  $scope.userList=[];
+  $scope.cols = [0,1,2,3,4];
+  $scope.log=function(msg){
+    console.log(msg);
+  }
+  // setter sample
+  $scope.userNameSetter=function(user){
+    return function(val){
+      console.log('setter user.name',user.name,val);
+      user.name=val;
+    }
+  };
+  // getter sample
+  $scope.userNameGetter=function(user){
+    return function(val){
+      console.log('getter user.name',user.name,val);
+      return user.name;
+    }
+  };
+  // setter with validation sample
+  $scope.emailSetter=function(user){
+    return function(val){
+      if(!val)return;
+      val = (val||"").toString();
+      if(val.indexOf("@")==-1) return;
+      user.email=val;
+    }
+  };
 
-	$scope.isError=function(user){
-		return user.name == "bad";
-	};
+  function User(obj){
+    for(var i in obj){
+      this[i]=obj[i];
+    }
+  }
+  // getterSetter for ng-model
+  User.prototype.nameSet=function(name){
+    if(arguments.length){
+      this.name = name;
+    }else{
+      return this.name;
+    }
+  }
+  for(var i=0;i<1000;i++){
+    $scope.userList.push(new User({
+      id:i,
+      name:"hoge"+i,
+      age:Math.floor(Math.random()*20+20),
+      admin:true,
+      email:"hoge"+i+"@example.com"
+    }));
+  }
+  $scope.userList[5].name="bad";
 
-	$scope.delete=function(user){
-		var i = $scope.userList.indexOf(user);
-		if(i!=-1){
-			$scope.userList.splice(i,1);
-		}
-	}
+  $scope.isError=function(user){
+    return user.name == "bad";
+  };
+
+  // delete click handler
+  $scope.delete=function(user){
+    var i = $scope.userList.indexOf(user);
+    if(i!=-1){
+      $scope.userList.splice(i,1);
+    }
+  }
+  $scope.setStart=function(x){
+    $scope.start = Math.min(Math.max(Math.floor(x/10)*10,0),$scope.userList.length-$scope.limit);
+  }
+}]).controller("sliderCtrl",['$scope',function($scope){
+  // dirty slider impliment. it is example...
+  var $ = angular.element;
+  $scope.container=function(e){
+    if(e.target.id!='slider-box')return;
+    var r = e.target.getBoundingClientRect();
+    var x = (e.pageX - r.left)*$scope.userList.length / r.width;
+    $scope.setStart(x-$scope.limit/2);
+  }
+  $scope.slider=function(e){
+    var r = e.target.parentNode.getBoundingClientRect();
+    var base = e.pageX, s = $scope.start;
+    e.stopPropagation();
+    function handler(e){
+      $scope.$apply(function(){
+        $scope.setStart(s+((e.pageX - base)*$scope.userList.length/r.width));
+      });
+    }
+    $(document).on('mousemove',handler).one('mouseup',function(e){
+      $(document).off('mousemove',handler);
+    });
+  }
 }]);
 </script>
+<!-- for highlight -->
+<div class="row code">
+<div class="col-sm-12"><h3>THIS DEMO's CODE</h3></div>
+<div id="codes">
+<script>
+document.write('<div class="col-sm-6"><h4>HTML</h4><pre><code class="html">');
+document.write(document.getElementById("mainApp").innerHTML.replace(/</g,'&lt;').trim());
+document.write('</code></pre></div>');
+document.write('<div class="col-sm-6"><h4>JAVASCRIPT</h4><pre><code class="javascript">');
+document.write(document.getElementById("script").innerHTML.trim());
+document.write('</code></pre></div>');
+</script>
+</div>
 
-
+</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
 </body></html>

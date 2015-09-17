@@ -39,6 +39,72 @@ function toArray(a){
   return ret;
 }
 
+function oddQuotes(str) {
+  return (str.split('"').length - 1) & 1;
+}
+function tsvParse(text){
+  if (typeof(text)!='string') {
+    return text;
+  }
+  var ret = [];
+  var rows = text.split('\n');
+  if (rows.length && rows[rows.length - 1] === '') {
+    rows.pop();
+  }
+
+  var cr, multiline=false;
+  for (var r = 0, rLen = rows.length; r < rLen; r ++) {
+    if (!multiline) {
+      cr = [];
+      ret.push(cr);
+    }
+    var cols = rows[r].split('\t');
+    for (var c = 0, cLen = cols.length; c < cLen; c ++) {
+      var col = cols[c];
+      if (multiline && c === 0) {
+        if (oddQuotes(col)) {
+          multiline = false;
+          col = col.substring(0, col.length - 1).replace(/""/g, '"');
+        }
+        cr[cr.length-1] += '\n' + col;
+      } else {
+        if (c === cLen - 1 && col.charAt(0)=='"' && oddQuotes(col)) {
+          col = col.substring(1);
+          multiline = true;
+        } else {
+          multiline = false;
+        }
+        cr.push(col.replace(/""/g, '"'));
+      }
+    }
+  }
+  return ret;
+}
+function tsvBuild(arr){
+  if(arr && arr.length){
+    var str = [];
+    for(var i=0;i<arr.length;i++){
+      var a = arr[i];
+      var r = [];
+      for(var j=0;j<a.length;j++){
+        var v = a[j];
+        if(typeof(v)=='string'){
+          if(v.indexOf("\n") > -1){
+            r.push('"' + v.replace(/"/g, '""') + '"');
+          }else{
+            r.push(v);
+          }
+        }else{
+          r.push((v === null || v === undefined) ? "" : v);
+        }
+      }
+      str.push(r.join("\t"));
+    }
+    return str.join("\n");
+  }
+  return arr;
+}
+
 function Range(pos,expanding){
   if(!pos){
     this.deselect();
@@ -110,7 +176,7 @@ CellCursor.prototype.blur = function(){
 };
 /**
  * focus to table.
- * @param focus:Boolean 
+ * @param focus:Boolean
  * @return true if change focus
  */
 CellCursor.prototype.setFocus = function(focus){
@@ -181,7 +247,7 @@ CellCursor.prototype.td=function(pos){
 };
 /**
  * @param td:HTMLTableCellElement
- * @return true if td is in this table.tbody 
+ * @return true if td is in this table.tbody
  */
 CellCursor.prototype.isTd=function(td){
   return td && td.parentNode && td.parentNode.parentNode==this.tBody();
@@ -205,6 +271,7 @@ CellCursor.prototype.getSelectedRows=function(selected){
   if(!selected.cursor) return ret;
   var rows = this.rows();
   for(var i=selected.topLeft.row,l=selected.bottomRight.row;i<=l;i++){
+    if(!rows[i])break;
     ret.push({row:i,tr:rows[i]});
   }
   return ret;
@@ -283,6 +350,7 @@ CellCursor.prototype.getSelectedCellValues=function(selected){
  */
 CellCursor.prototype.setSelectedCellValues=function(values, selected){
   if(!values) return;
+  if(typeof(values)=='string')values=tsvParse(values);
   if(!angular.isArray(values))values=[values];
   var rows = this.getSelectedCells(selected);
   for(var r=0;r<rows.length && (r in values);r++){
@@ -378,14 +446,14 @@ CellCursor.prototype.keyMoveHandler = function(e){
 CellCursor.prototype.$on = function(){
   return this.scope.$on.apply(this.scope, arguments);
 };
-/** emmit event */
+/** emit event */
 CellCursor.prototype.$emit = function(){
   return this.scope.$emit.apply(this.scope, arguments);
 };
 /**
  * @param td:HTMLTableCellElement
  * @param event:Event (type=='keydown'|'keyup'|'keypress')
- * @return isStopImmediatePropagation   
+ * @return isStopImmediatePropagation
  */
 CellCursor.prototype.onCellEvent = function(td, event){
   if(!td){
@@ -506,28 +574,71 @@ function appendDefaultStyle($document){
   }
 }
 
-function resizeHandler(name, elem, $document, handler){
+function stopEvent(e){
+  e.stopPropagation();
+  e.preventDefault();
+  e.stopImmediatePropagation();
+}
+function resizeHandler(name, elem, cellCursor, handler){
   var td = elem.parent();
+  var $document = angular.element(elem[0].ownerDocument);
   if(typeof(td[0].cellIndex)=='undefined'){
     throw new Error(name + " need to be child of td or th");
+  }
+  function tdSize(){
+    return {
+      width:td[0].offsetWidth,
+      height:td[0].offsetHeight
+    };
+  }
+  function tdPos(){
+    return {
+      col:td[0].cellIndex,
+      row:td[0].parentNode.sectionRowIndex
+    };
   }
   appendDefaultStyle($document);
   td.css({position:'relative'});
   elem.on('mousedown',function(e){
-    handler.mousedown(e);
-    function dragHandler(e){
-      handler.mousemove(e);
-      e.stopPropagation();
-      e.preventDefault();
+    var base = tdSize(), pos = tdPos();
+    if(cellCursor){
+      var e2 = cellCursor.$emit(name+".start", pos, tdSize());
+      if(e2.defaultPrevented) return false;
     }
-    e.stopPropagation();
-    e.preventDefault();
+    handler.init(base);
+    base.width -= e.pageX;
+    base.height -= e.pageY;
+    stopEvent(e);
+    function dragHandler(e){
+      var size = {
+        width:base.width+e.pageX,
+        height:base.height+e.pageY,
+      };
+      if(cellCursor){
+        var e2 = cellCursor.$emit(name+".resizing", pos, size, tdSize());
+        if(e2.defaultPrevented) return false;
+      }
+      handler.resize(size);
+      stopEvent(e);
+      if(cellCursor){
+        cellCursor.$emit(name+".resized", pos, tdSize());
+      }
+    }
     $document.on('mousemove',dragHandler);
-    $document.one('mouseup',function(){
+    $document.one('mouseup',function(e){
+      stopEvent(e);
+      if(cellCursor) cellCursor.$emit(name + ".end", pos, tdSize());
       $document.off('mousemove',dragHandler);
     });
   }).on('dblclick',function(e){
-    handler.dblclick(e);
+    if(cellCursor){
+      var e2 = cellCursor.$emit(name+".reset", tdPos(), tdSize());
+      if(e2.defaultPrevented) return false;
+    }
+    stopEvent(e);
+    handler.reset(e);
+  }).on('click',function(e){
+    stopEvent(e);
   });
 }
 
@@ -544,6 +655,7 @@ angular.module("cellCursor",[])
       var getter = $parse(attrs.cellCursor);
       cellCursor.table = elem;
       cellCursor.scope = scope.$root.$new(true);
+      cellCursor.name = attrs.cellCursor;
       getter.assign(scope,cellCursor);
       elem.on("mousedown",function(e){
         var td = cellCursor.closestCell(e.target);
@@ -598,7 +710,7 @@ angular.module("cellCursor",[])
         elem.toggleClass("focus",v);
       });
       setTimeout(function(){
-        emitAndApply(scope,scope)("cellCursor",cellCursor,attrs.cellCursor);
+        emitAndApply(scope,scope)("cellCursor",cellCursor,cellCursor.name);
       });
     }
   };
@@ -881,38 +993,10 @@ angular.module("cellCursor",[])
   };
 }])
 .filter("tsvToCellCursor",[function(){
-  return function(text){
-    if (typeof(text)=='string') {
-      var data = [];
-      text.split(/[\n\f\r]/).forEach(function (thisRow) {
-        data.push(thisRow.split("\t"));
-      });
-      return data;
-    }
-    return text;
-  };
+  return tsvParse;
 }])
 .filter("cellCursorToTsv",[function(){
-  return function(arr){
-    if(arr && arr.length){
-      var str = [];
-      for(var i=0;i<arr.length;i++){
-        var a = arr[i];
-        var r = [];
-        for(var j=0;j<a.length;j++){
-          var v = a[j];
-          if (typeof(v)=='string' && v.indexOf('\n') > -1) {
-            r.push('"' + v.replace(/"/g, '""') + '"');
-          }else {
-            r.push(v);
-          }
-        }
-        str.push(r.join("\t"));
-      }
-      return str.join("\n");
-    }
-    return arr;
-  };
+  return tsvBuild;
 }])
 .directive("cellCursorCopy",["$document","$parse",'$window',function($document,$parse,$window){
   return {
@@ -934,7 +1018,6 @@ angular.module("cellCursor",[])
   };
 }])
 .directive("cellCursorPaste",["$document",'$filter','$window',function($document, $filter, $window){
-  var f=$filter("tsvToCellCursor");
   return {
     require:'cellCursor',
     link:function(scope, elem, attrs, cellCursor){
@@ -959,26 +1042,29 @@ angular.module("cellCursor",[])
 }])
 .directive("cellCursorColResize",["$document",function($document){
   return {
+    require:'^?cellCursor',
     restrict:'C',
-    link:function(scope, elem, attrs){
+    link:function(scope, elem, attrs, cellCursor){
       var td = elem.parent();
       function cols(){
         return $(xpath(td[0],'ancestor::table/*/tr/*['+(td[0].cellIndex+1)+']'));
       }
-      var w, c;
-      resizeHandler('cell-cursor-col-resize', elem, $document, {
-        mousedown:function(e){
-          w=td[0].offsetWidth - e.pageX;
-          c=cols();
+      var c;
+      resizeHandler('cellCursor.colResize', elem, cellCursor, {
+        init:function(size){
+          c = cols();
         },
-        mousemove:function(e){
-          var width = (w+e.pageX)+'px';
+        resize:function(size){
+          var width = size.width+'px';
           c.css({
             'max-width':width,
             'width':width,
           });
         },
-        dblclick:function(e){
+        finish:function(size){
+          scope.$apply();
+        },
+        reset:function(e){
           cols().css({
             'max-width':'',
             'width':''
@@ -990,21 +1076,25 @@ angular.module("cellCursor",[])
 }])
 .directive("cellCursorRowResize",["$document",function($document){
   return {
+    require:'^?cellCursor',
     restrict:'C',
-    link:function(scope, elem, attrs){
-      var td = elem.parent(), h;
-      resizeHandler('cell-cursor-row-resize', elem, $document, {
-        mousedown:function(e){
-          h=td[0].offsetHeight - e.pageY;
+    link:function(scope, elem, attrs, cellCursor){
+      var td = elem.parent();
+      resizeHandler('cellCursor.rowResize', elem, cellCursor, {
+        init:function(size){
+          td = elem.parent();
         },
-        mousemove:function(e){
-          var height = (h+e.pageY)+'px';
+        resize:function(size){
+          var height = size.height+'px';
           td.parent().css({
             'max-height':height,
             'height':height
           });
         },
-        dblclick:function(e){
+        finish:function(size){
+          scope.$apply();
+        },
+        reset:function(e){
           td.parent().css({
             'max-height':'',
             'height':''

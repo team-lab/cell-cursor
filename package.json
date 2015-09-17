@@ -1,6 +1,6 @@
 {
-  "name": "cell-cursor",
-  "version": "0.0.3",
+  "name": "angular-cell-cursor",
+  "version": "0.0.4",
   "description": "Simple excel like spreadsheet development kit for angualrJs",
   "main": "cellCursor.js",
   "scripts": {
