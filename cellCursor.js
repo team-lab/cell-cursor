@@ -875,12 +875,11 @@ angular.module("cellCursor",[])
 .controller("cellCursorOptionsController",['$scope','$parse','cellEditorFactory',function($scope,$parse,cellEditorFactory){
   this.getOption=function(){
     var o = $parse(this.optionExpression)($scope);
-    if(!this.ngModel && o.input){
+    if(this.ngModel===undefined && o.input){
       var e = this.element.querySelector(o.input);
       if(!e) throw new Error("cellCursorOptionsController:not find element `"+o.input+"`");
       var c = $(e).data().$ngModelController;
-      if(!c) throw new Error("cellCursorOptionsController:element `"+o.input+"` "+e+" dose not have ngModel");
-      this.ngModel = c;
+      this.ngModel = c || null;
     }
     if(o.input && !o.editor) o.editor="input";
     return o;
