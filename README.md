@@ -137,7 +137,7 @@ set option object. set to cell( td or th ) element.
 }
 ```
 
-Order　of　getters/setter definitions is `getter`|`setter` > `bind` > `ngModel`  > `input`.
+Order of getters/setter definitions is `getter`|`setter` > `bind` > `ngModel`  > `input`.
 
 Event function signeture is `function (event, option:(cell-cursor-options), cellCursorOptionsController, cellCursor, td:HTMLCellElement):boolean`.
 
