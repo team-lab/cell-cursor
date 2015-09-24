@@ -774,19 +774,18 @@ angular.module("cellCursor",[])
           "vertical-align":st.verticalAlign,
           "font-size":st.fontSize,
           "font-family":st.fontFamily,
+          "white-space":"pre",
           "top":rect.top+"px",
           "left":rect.left+"px",
+          "width":st.width,
+          "height":st.height
         });
-        elem[0].style["white-space"]="nowrap";
-        elem[0].style.width=st.width;
-        elem[0].style.height=st.height;
-
-        var oldValue = elem[0].value;
+        var oldValue = elem.val();
         elem[0].focus();
         setTimeout(function(){
-          if(oldValue!=elem[0].value){
-            modelCtrl.$setViewValue(elem[0].value.substr(oldValue.length));
-            elem[0].value = modelCtrl.$viewValue;
+          if(oldValue!=elem.val()){
+            modelCtrl.$setViewValue(elem.val().substr(oldValue.length));
+            elem.val(modelCtrl.$viewValue);
           }else{
             elem[0].select();
           }
@@ -817,8 +816,8 @@ angular.module("cellCursor",[])
         }
       },
       open:function(options, td, finish, cellCursor){
-        var editorDiv = $('<div cell-cursor-editor-frame="cellCursor"><textarea class="cell-cursor-text-editor" style="position:fixed;z-index:1" cell-cursor-text-editor="editor"'+
-          '  ng-model="options.getterSetter" ng-model-options="{getterSetter:true,updateOn:\'blur\'}"></div>');
+        var editorDiv = $('<div cell-cursor-editor-frame="cellCursor"><textarea type="text" class="cell-cursor-text-editor" wrap="off" style="position:fixed;z-index:1" cell-cursor-text-editor="editor"'+
+          ' ng-trim="false" ng-model="options.getterSetter" ng-model-options="{getterSetter:true,updateOn:\'blur\'}"></textarea></div>');
         $(td).prepend(editorDiv);
         var s = $rootScope.$new(true);
         s.options=options;
