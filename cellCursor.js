@@ -893,7 +893,11 @@ angular.module("cellCursor",[])
   this.getValueOpt=function(){
     var o = this.getOption();
     if(o.getter){
-      return [o.getter()];
+      if(typeof(o.getter)=='function'){
+        return [o.getter()];
+      }else if(typeof(o.getter)=='string'){
+        return [$scope.$eval(o.getter)];
+      }
     }else if(o.model){
       return [$parse(o.model)($scope)];
     }else if(this.ngModel){
@@ -914,7 +918,11 @@ angular.module("cellCursor",[])
   this.setValue=function(data){
     var o = this.getOption();
     if(o.setter){
-      o.setter(data);
+      if(typeof(o.setter)=='function'){
+        return [o.setter(data)];
+      }else if(typeof(o.setter)=='string'){
+        return [$scope.$eval(o.setter,{$data:data})];
+      }
       return true;
     }else if(o.model){
       $parse(o.model).assign($scope,data);

@@ -128,8 +128,8 @@ set option object. set to cell( td or th ) element.
 
 ```json
 {
-  "setter":"function: cell value setter",
-  "getter":"function: cell value getter",
+  "setter":"function|string: cell value setter",
+  "getter":"function|string: cell value getter",
   "model":"string: expression for bind value in scope",
   "input":"string: querySelector for input element(that has ngModel)",
   "editor":"string: editor type name. it defined by cellCursorEditorFactory service",
@@ -150,6 +150,57 @@ event called now `keydown`|`keypress`|`keydown`|`compositionstart`|`compositionu
     </table>
   </div>
 ```
+
+You can set function or string for getter/setter. like belows.
+
+```html
+  <div ng-app="app" ng-controller="rootCtrl">
+    <table cell-cursor="x">
+      <tr ng-repeat="i in items"><td cell-cursor-options="{getter:nameGetter(i),setter:nameSetter(i)}">{{i.name}}</td></tr>
+    </table>
+  </div>
+  <script>
+  angular.module('app',['cellCursor'])
+  .controller('rootCtrl',['$scope',function($scope){
+    $scope.items=[{id:1,name:'apple'},{id:2,name:'orange'},{id:3,name:'banana'}];
+    // create getter/setter
+    $scope.nameGetter=function(i){
+      return function(){ return i; }
+    }
+    $scope.nameSetter=function(i){
+      return function(v){
+        if(v!="badname"){ return i.name=v; }
+      }
+    }
+  }]);
+  </script>
+```
+
+```html
+  <div ng-app="app" ng-controller="rootCtrl">
+    <table cell-cursor="x">
+      <!-- $data is data for setter -->
+      <tr ng-repeat="i in items"><td cell-cursor-options="{getter:'i.getName()',setter:'i.setName($data)}">{{i.name}}</td></tr>
+    </table>
+  </div>
+  <script>
+  function Item(data){
+    angular.copy(data,this);
+  }
+  // create getter/setter
+  Item.prototype.getName = function(){
+    return this.name;
+  }
+  Item.prototype.setName = function(v){
+    if(v!="badname"){ return i.name=v; }
+  }
+  angular.module('app',['cellCursor'])
+  .controller('rootCtrl',['$scope',function($scope){
+    $scope.items=[new Item({id:1,name:'apple'}),new Item({id:2,name:'orange'}), new Item({id:3,name:'banana'})];
+  }]);
+  </script>
+```
+
 
 ### cell-cursor-drag
 
