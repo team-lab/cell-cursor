@@ -748,6 +748,7 @@ angular.module("cellCursor",[])
             e.preventDefault();
             break;
           case 13: // ENTER
+            if(e.shiftKey||e.ctrlKey||e.metaKey||e.altKey) break;
             modelCtrl.$commitViewValue();
             scope.finish(modelCtrl.$modelValue);
             scope.$apply();
