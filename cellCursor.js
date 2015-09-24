@@ -306,7 +306,7 @@ CellCursor.prototype.getCellViewValue=function(td){
   }
 };
 CellCursor.prototype.setCellValue=function(td, data){
-  if(td.getAttribute("readonly"))return;
+  if(td.hasAttribute("readonly"))return;
   var e = angular.element(td).data();
   if(e.$cellCursorOptionsController){
     e.$cellCursorOptionsController.setValue(data);
