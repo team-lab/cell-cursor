@@ -759,8 +759,10 @@ angular.module("cellCursor",[])
       });
       scope.$on('cellCursor.editor.open',function(e,td){
         var st = td.currentStyle || td.ownerDocument.defaultView.getComputedStyle(td, '');
+        var rect = td.getBoundingClientRect();
         elem.css({
-          "position":"absolute",
+          "position":"fixed",
+          "zIndex":1,
           "display":"inline-table",
           "overflow":"hidden",
           "resize":"none",
@@ -769,10 +771,11 @@ angular.module("cellCursor",[])
           "border":st.border,
           "background":st.background,
           "box-sizing":st.boxSizing,
+          "vertical-align":st.verticalAlign,
           "font-size":st.fontSize,
           "font-family":st.fontFamily,
-          "top":"-"+(parseInt(st.borderTopWidth,10)+parseInt(st.paddingTop,10))+"px",
-          "left":"-"+(parseInt(st.borderLeftWidth,10)+parseInt(st.paddingTop,10))+"px",
+          "top":rect.top+"px",
+          "left":rect.left+"px",
         });
         elem[0].style["white-space"]="nowrap";
         elem[0].style.width=st.width;
@@ -814,7 +817,7 @@ angular.module("cellCursor",[])
         }
       },
       open:function(options, td, finish, cellCursor){
-        var editorDiv = $('<div cell-cursor-editor-frame="cellCursor"><textarea class="cell-cursor-text-editor" cell-cursor-text-editor="editor"'+
+        var editorDiv = $('<div cell-cursor-editor-frame="cellCursor"><textarea class="cell-cursor-text-editor" style="position:fixed;z-index:1" cell-cursor-text-editor="editor"'+
           '  ng-model="options.getterSetter" ng-model-options="{getterSetter:true,updateOn:\'blur\'}"></div>');
         $(td).prepend(editorDiv);
         var s = $rootScope.$new(true);
