@@ -294,24 +294,30 @@ CellCursor.prototype.getSelectedCells=function(selected){
 };
 /** @return a value use table-data-options or ng-model.$viewValue */
 CellCursor.prototype.getCellViewValue=function(td){
-  var e = angular.element(td).data();
-  if(e.$cellCursorOptionsController){
-    var r = e.$cellCursorOptionsController.getValueOpt();
+  var e = angular.element(td);
+  var c = e.controller("cellCursorOptions") || e.controller("cellCursorCell");
+  if(c){
+    var r = c.getValueOpt();
     if(r){
       return r[0];
     }
   }
-  if(e.$ngModelController){
-    return e.$ngModelController.$viewValue;
+  c = e.controller("ngModel");
+  if(c){
+    return c.$viewValue;
   }
 };
 CellCursor.prototype.setCellValue=function(td, data){
   if(td.hasAttribute("readonly"))return;
-  var e = angular.element(td).data();
-  if(e.$cellCursorOptionsController){
-    e.$cellCursorOptionsController.setValue(data);
-  }else if(e.$ngModelController){
-    e.$ngModelController.$setViewValue(data);
+  var e = angular.element(td);
+  var c = e.controller("cellCursorOptions") || e.controller("cellCursorCell");
+  if(c){
+    c.setValue(data);
+  }else{
+    c = e.controller("ngModel");
+    if(c){
+      c.$setViewValue(data);
+    }
   }
 };
 
@@ -460,9 +466,10 @@ CellCursor.prototype.onCellEvent = function(td, event){
     td = this.td(this.selected.cursor);
     if(!td) return;
   }
-  var d = angular.element(td).data();
-  if(d.$cellCursorOptionsController){
-    return d.$cellCursorOptionsController.onCellEvent(event,this,td);
+  var e = angular.element(td);
+  var c = e.controller("cellCursorOptions") || e.controller("cellCursorCell");
+  if(c){
+    return c.onCellEvent(event,this,td);
   }
 };
 /** @param td:HTMLTableCellElement */
@@ -471,10 +478,11 @@ CellCursor.prototype.openEditor = function(td){
     td = this.td(this.selected.cursor);
     if(!td) return;
   }
-  var d = angular.element(td).data();
-  if(d.$cellCursorOptionsController){
+  var e = angular.element(td);
+  var c = e.controller("cellCursorOptions") || e.controller("cellCursorCell");
+  if(c){
     var self = this;
-    return  d.$cellCursorOptionsController.openEditor(td,function(){
+    return  c.openEditor(td,function(){
       self.focus();
     }, this);
   }
@@ -1132,6 +1140,52 @@ angular.module("cellCursor",[])
       });
     }
   };
-}]);
+}])
+.directive("cellCursorCell",["$document",function($document){
+  return {
+    transclude:true,
+    template:'<div ng-transclude style="overflow:hidden;white-space:nowrap"></div>',
+    require:[
+      'cellCursorCell',
+      '?ngModel',
+    ],
+    controller:'cellCursorOptionsController',
+    compile:function(elem,attrs){
+    return function(scope, elem, attrs, ctrls, $transclude){
+      ctrls[0].optionExpression = attrs.cellCursorCell;
+      ctrls[0].ngModel = ctrls[1];
+      ctrls[0].element = elem[0];
+      scope.$watch(attrs.cellCursorCell+".width",function(v){
+        if(v===undefined){
+          elem.css({
+            'max-width':'',
+            'min-width':''
+          });
+        }else{
+          elem.css({
+            'max-width':v+"px",
+            'min-width':v+"px"
+          });
+        }
+      });
+      var ev = "!"+attrs.cellCursorCell+".hide";
+      if(attrs.ngIf){
+        ev = ev + "&&("+attrs.ngIf+")";
+      }
+      var block, childScope, roles, parent=elem.parent();
+      var mark = $($document[0].createComment('cellCursorCell : ' + attrs.cellCursorCell + ' '));
+      elem.after(mark);
+      scope.$watch(ev,function(v){
+        if(v){
+          mark.after(elem);
+        }else{
+          elem.remove();
+        }
+      });
+    };
+    }
+  };
+}])
+;
 
 })(angular);

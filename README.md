@@ -216,6 +216,28 @@ You can set function or string or boolean for getter/setter. like belows.
 `{model:'i.name',getter:false,setter:false"` is the same as
 `{getter:'noop()',setter:'noop()"`.
 
+
+### cell-cursor-cell
+
+`cell-cursor-cell="expression"`
+
+set option object. set to cell( td or th ) element.
+
+and, it directive wrap inner content
+`<div style="overflow:hidden;white-space:nowrap"></div>`
+(this tag hide overflow content).
+
+`cell-cursor-cell` is extended `cell-cursor-options` directive.
+
+```json
+{
+  "setter","getter",..."on[event]":"same as `cell-cursor-options`",
+  "hide":"boolean: td visible or hide (it works like ng-if)",
+  "width":"number: set td style 'width' and 'max-width' and 'min-width'"
+}
+```
+
+
 ### cell-cursor-drag
 
 `cell-cursor-drag="expression"`
