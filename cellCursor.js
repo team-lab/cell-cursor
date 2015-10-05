@@ -1,5 +1,5 @@
 /*jshint globalstrict: true*/
-/*global $:false, angular, setTimeout */
+/*global $:false, angular, setTimeout, XPathResult, Node */
 
 "use strict";
 (function(angular){
