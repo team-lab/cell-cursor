@@ -46,6 +46,20 @@ directives
   </div>
 ```
 
+#### Events
+
+cell-cursor emit event to scope.
+
+ * `$emit("cellCursor", cellCursor, name)`
+   * on initialized. name is string of cell-cursor attrubtue.
+   * cellCursor is controller.
+
+cell-cursor emit event to cellCursor.
+
+ * `$emit("cellCursor", cellCursor, name)`
+   * on initialized. name is string of cell-cursor attrubtue.
+
+
 ### cell-cursor-copy
 
 `cell-cursor-copy="expression"`
