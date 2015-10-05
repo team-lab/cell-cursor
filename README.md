@@ -258,6 +258,10 @@ argument `pos` is target cell position object `{row, col}`.
 
 ### cell-cursor-col-resize
 
+`cell-cursor-col-resize="expression"`
+
+expression indicate event data object.
+
 drag resize handler. User can drag and resize to column width. ( in html, set style 'max-width' and 'width' to all cell elements. ) and reset by dblclick.
 
 ```html
@@ -265,9 +269,9 @@ drag resize handler. User can drag and resize to column width. ( in html, set st
   <tr>
     <!-- set handler as class name -->
     <!-- wrap content div that has 'overflow:hidden' if you need -->
-    <td><div class="cell-cursor-col-resize"></div><div style="overflow:hidden">This name is 'A'.</div></td>
-    <td><div class="cell-cursor-col-resize"></div><div style="overflow:hidden">This name is 'B'.</div></td>
-    <td><div class="cell-cursor-col-resize"></div><div style="overflow:hidden">This name is 'C'.</div></td>
+    <td><div cell-cursor-col-resize="'A'"></div><div style="overflow:hidden">This name is 'A'.</div></td>
+    <td><div cell-cursor-col-resize="'B'"></div><div style="overflow:hidden">This name is 'B'.</div></td>
+    <td><div cell-cursor-col-resize="'C'"></div><div style="overflow:hidden">This name is 'C'.</div></td>
   </tr>
 </table>
 ```
@@ -276,25 +280,30 @@ drag resize handler. User can drag and resize to column width. ( in html, set st
 
 cell-cursor-row-resize emit event to cellCursor.
 
- * `$emit("cellCursor.colResize.start", pos, size)`
+ * `$emit("cellCursor.colResize.start", pos, size, data)`
    * on mousedown
    * can cancel by call event.preventDefault().
- * `$emit("cellCursor.colResize.resizing", pos, newSize, oldSize)`
+ * `$emit("cellCursor.colResize.resizing", pos, newSize, oldSize, data)`
    * on mousemove before resize
    * can cancel by call event.preventDefault().
    * can modify size by modify argument `newSize.width`.
- * `$emit("cellCursor.colResize.resized", pos, size)`
+ * `$emit("cellCursor.colResize.resized", pos, size, data)`
    * on mousemove after resize
- * `$emit("cellCursor.colResize.end`, pos, size)`
+ * `$emit("cellCursor.colResize.end`, pos, size, data)`
    * on mouseup
- * `$emit("cellCursor.colResize.reset`, pos, size)`
+ * `$emit("cellCursor.colResize.reset`, pos, size, data)`
    * on dblclick
    * can cancel by call event.preventDefault().
 
 argument `pos` is target cell position object `{row, col}`.
 argument `size` is target cell size object `{width, height}`.
+argument `data` is value of attribute `cell-cursor-col-resize`.
 
 ### cell-cursor-row-resize
+
+`cell-cursor-col-resize="expression"`
+
+expression indicate event data object.
 
 drag resize handler. User can drag and resize to row height. ( in html, set style 'max-height' and 'height' to tr  elements. ) and reset by dblclick.
 
@@ -302,13 +311,13 @@ drag resize handler. User can drag and resize to row height. ( in html, set styl
 <table>
   <tr>
     <!-- set handler as class name -->
-    <td><div class="cell-cursor-row-resize"></div>A</td>
+    <td><div cell-cursor-row-resize="'A'"></div>A</td>
   </tr>
   <tr>
-    <td><div class="cell-cursor-row-resize"></div>B</td>
+    <td><div cell-cursor-row-resize="'B'"></div>B</td>
   </tr>
   <tr>
-    <td><div class="cell-cursor-row-resize"></div>C</td>
+    <td><div cell-cursor-row-resize="'C'"></div>C</td>
   </tr>
 </table>
 ```
@@ -317,20 +326,21 @@ drag resize handler. User can drag and resize to row height. ( in html, set styl
 
 cell-cursor-row-resize emit event to cellCursor.
 
- * `$emit("cellCursor.rowResize.start", pos, size)`
+ * `$emit("cellCursor.rowResize.start", pos, size, data)`
    * on mousedown
    * can cancel by call event.preventDefault().
- * `$emit("cellCursor.rowResize.resizing", pos, newSize, oldSize)`
+ * `$emit("cellCursor.rowResize.resizing", pos, newSize, oldSize, data)`
    * on mousemove before resize
    * can cancel by call event.preventDefault().
    * can modify size by modify argument `newSize.height`.
- * `$emit("cellCursor.rowResize.resized", pos, size)`
+ * `$emit("cellCursor.rowResize.resized", pos, size, data)`
    * on mousemove after resize
- * `$emit("cellCursor.rowResize.end`, pos, size)`
+ * `$emit("cellCursor.rowResize.end`, pos, size, data)`
    * on mouseup
- * `$emit("cellCursor.rowResize.reset`, pos, size)`
+ * `$emit("cellCursor.rowResize.reset`, pos, size, data)`
    * on dblclick
    * can cancel by call event.preventDefault().
 
 argument `pos` is target cell position object `{row, col}`.
 argument `size` is target cell size object `{width, height}`.
+argument `data` is value of attribute `cell-cursor-row-resize`.

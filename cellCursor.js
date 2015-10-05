@@ -579,12 +579,15 @@ function stopEvent(e){
   e.preventDefault();
   e.stopImmediatePropagation();
 }
-function resizeHandler(name, elem, cellCursor, handler){
+function resizeHandler(name, elem, cellCursor, data, handler){
   var td = elem.parent();
-  var $document = angular.element(elem[0].ownerDocument);
-  if(typeof(td[0].cellIndex)=='undefined'){
-    throw new Error(name + " need to be child of td or th");
+  while(typeof(td[0].cellIndex)=='undefined'){
+    td = td.parent();
+    if(td.length===0){
+      throw new Error(name + " need to be child of td or th");
+    }
   }
+  var $document = angular.element(elem[0].ownerDocument);
   function tdSize(){
     return {
       width:td[0].offsetWidth,
@@ -602,7 +605,7 @@ function resizeHandler(name, elem, cellCursor, handler){
   elem.on('mousedown',function(e){
     var base = tdSize(), pos = tdPos();
     if(cellCursor){
-      var e2 = cellCursor.$emit(name+".start", pos, tdSize());
+      var e2 = cellCursor.$emit(name+".start", pos, tdSize(), data);
       if(e2.defaultPrevented) return false;
     }
     handler.init(base);
@@ -615,7 +618,7 @@ function resizeHandler(name, elem, cellCursor, handler){
         height:base.height+e.pageY,
       };
       if(cellCursor){
-        var e2 = cellCursor.$emit(name+".resizing", pos, size, tdSize());
+        var e2 = cellCursor.$emit(name+".resizing", pos, size, tdSize(), data);
         if(e2.defaultPrevented) return false;
       }
       handler.resize(size);
@@ -627,12 +630,12 @@ function resizeHandler(name, elem, cellCursor, handler){
     $document.on('mousemove',dragHandler);
     $document.one('mouseup',function(e){
       stopEvent(e);
-      if(cellCursor) cellCursor.$emit(name + ".end", pos, tdSize());
+      if(cellCursor) cellCursor.$emit(name + ".end", pos, tdSize(), data);
       $document.off('mousemove',dragHandler);
     });
   }).on('dblclick',function(e){
     if(cellCursor){
-      var e2 = cellCursor.$emit(name+".reset", tdPos(), tdSize());
+      var e2 = cellCursor.$emit(name+".reset", tdPos(), tdSize(), data);
       if(e2.defaultPrevented) return false;
     }
     stopEvent(e);
@@ -640,6 +643,7 @@ function resizeHandler(name, elem, cellCursor, handler){
   }).on('click',function(e){
     stopEvent(e);
   });
+  return td;
 }
 
 angular.module("cellCursor",[])
@@ -1053,14 +1057,14 @@ angular.module("cellCursor",[])
 .directive("cellCursorColResize",["$document",function($document){
   return {
     require:'^?cellCursor',
-    restrict:'C',
+    restrict:'CA',
     link:function(scope, elem, attrs, cellCursor){
-      var td = elem.parent();
+      elem.addClass("cell-cursor-col-resize");
       function cols(){
         return $(xpath(td[0],'ancestor::table/*/tr/*['+(td[0].cellIndex+1)+']'));
       }
       var c;
-      resizeHandler('cellCursor.colResize', elem, cellCursor, {
+      var td = resizeHandler('cellCursor.colResize', elem, cellCursor, scope.$eval(attrs.cellCursorColResize), {
         init:function(size){
           c = cols();
         },
@@ -1087,10 +1091,10 @@ angular.module("cellCursor",[])
 .directive("cellCursorRowResize",["$document",function($document){
   return {
     require:'^?cellCursor',
-    restrict:'C',
+    restrict:'CA',
     link:function(scope, elem, attrs, cellCursor){
-      var td = elem.parent();
-      resizeHandler('cellCursor.rowResize', elem, cellCursor, {
+      elem.addClass("cell-cursor-row-resize");
+      var td = resizeHandler('cellCursor.rowResize', elem, cellCursor, scope.$eval(attrs.cellCursorRowResize), {
         init:function(size){
           td = elem.parent();
         },
