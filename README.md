@@ -128,8 +128,8 @@ set option object. set to cell( td or th ) element.
 
 ```json
 {
-  "setter":"function|string: cell value setter",
-  "getter":"function|string: cell value getter",
+  "setter":"function|string|boolean: cell value setter",
+  "getter":"function|string|boolean: cell value getter",
   "model":"string: expression for bind value in scope",
   "input":"string: querySelector for input element(that has ngModel)",
   "editor":"string: editor type name. it defined by cellCursorEditorFactory service",
@@ -151,7 +151,9 @@ event called now `keydown`|`keypress`|`keydown`|`compositionstart`|`compositionu
   </div>
 ```
 
-You can set function or string for getter/setter. like belows.
+You can set function or string or boolean for getter/setter. like belows.
+
+#### if setter/getter is function, cellCursor call it.
 
 ```html
   <div ng-app="app" ng-controller="rootCtrl">
@@ -176,7 +178,10 @@ You can set function or string for getter/setter. like belows.
   </script>
 ```
 
+#### if setter/getter is string, cellCursor eval it with scope of there.
+
 ```html
+  <!-- string -->
   <div ng-app="app" ng-controller="rootCtrl">
     <table cell-cursor="x">
       <!-- $data is data for setter -->
@@ -201,6 +206,15 @@ You can set function or string for getter/setter. like belows.
   </script>
 ```
 
+#### if setter/getter is true, cellCursor eval 'model' value for getter/setter.
+
+`{model:'i.name',getter:true,setter:true"` is the same as
+`{getter:'i.getName()',setter:'i.setName($data)}"`.
+
+#### if setter/getter is false, value readonly/writeonly.
+
+`{model:'i.name',getter:false,setter:false"` is the same as
+`{getter:'noop()',setter:'noop()"`.
 
 ### cell-cursor-drag
 

@@ -899,6 +899,14 @@ angular.module("cellCursor",[])
         return [o.getter()];
       }else if(typeof(o.getter)=='string'){
         return [$scope.$eval(o.getter)];
+      }else if(typeof(o.getter)=='boolean'){
+        if(o.getter){
+          return [$scope.$eval(o.model.replace(/(\.|^)([a-zA-Z0-9]+)$/,function(model,pre,method){
+            return pre+'get'+method.substr(0,1).toUpperCase()+method.substr(1);
+          })+'()')];
+        }else{
+          return false;
+        }
       }
     }else if(o.model){
       return [$parse(o.model)($scope)];
@@ -924,8 +932,15 @@ angular.module("cellCursor",[])
         return [o.setter(data)];
       }else if(typeof(o.setter)=='string'){
         return [$scope.$eval(o.setter,{$data:data})];
+      }else if(typeof(o.setter)=='boolean'){
+        if(o.setter){
+          return $scope.$eval(o.model.replace(/(\.|^)([a-zA-Z0-9]+)$/,function(model,pre,method){
+            return pre+'set'+method.substr(0,1).toUpperCase()+method.substr(1);
+          })+'($data)',{$data:data});
+        }else{
+          return true;
+        }
       }
-      return true;
     }else if(o.model){
       $parse(o.model).assign($scope,data);
       return true;
