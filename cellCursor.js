@@ -1095,7 +1095,7 @@ angular.module("cellCursor",[])
           var width = size.width+'px';
           c.css({
             'max-width':width,
-            'width':width,
+            'min-width':width,
           });
         },
         finish:function(size){
@@ -1104,7 +1104,7 @@ angular.module("cellCursor",[])
         reset:function(e){
           cols().css({
             'max-width':'',
-            'width':''
+            'min-width':''
           });
         }
       });

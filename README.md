@@ -312,7 +312,7 @@ argument `pos` is target cell position object `{row, col}`.
 
 expression indicate event data object.
 
-drag resize handler. User can drag and resize to column width. ( in html, set style 'max-width' and 'width' to all cell elements. ) and reset by dblclick.
+drag resize handler. User can drag and resize to column width. ( in html, set style 'max-width' and 'min-width' to all cell elements. ) and reset by dblclick.
 
 ```html
 <table>
@@ -355,7 +355,7 @@ argument `data` is value of attribute `cell-cursor-col-resize`.
 
 expression indicate event data object.
 
-drag resize handler. User can drag and resize to row height. ( in html, set style 'max-height' and 'height' to tr  elements. ) and reset by dblclick.
+drag resize handler. User can drag and resize to row height. ( in html, set style 'max-height' and 'min-height' to tr  elements. ) and reset by dblclick.
 
 ```html
 <table>
