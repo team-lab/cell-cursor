@@ -1158,8 +1158,20 @@ angular.module("cellCursor",[])
   };
 }])
 .directive("cellCursorCell",["$document",function($document){
+  function setWidth(v,elem){
+    if(elem){
+      elem.css((v===undefined)?
+        {
+          'max-width':'',
+          'min-width':''
+        } : {
+          'max-width':v+"px",
+          'min-width':v+"px"
+        });
+    }
+  }
   return {
-    transclude:true,
+    transclude:'element',
     template:'<div ng-transclude style="overflow:hidden;white-space:nowrap"></div>',
     require:[
       'cellCursorCell',
@@ -1171,31 +1183,34 @@ angular.module("cellCursor",[])
       ctrls[0].optionExpression = attrs.cellCursorCell;
       ctrls[0].ngModel = ctrls[1];
       ctrls[0].element = elem[0];
+      var block=null, width, childScope;
       scope.$watch(attrs.cellCursorCell+".width",function(v){
-        if(v===undefined){
-          elem.css({
-            'max-width':'',
-            'min-width':''
-          });
-        }else{
-          elem.css({
-            'max-width':v+"px",
-            'min-width':v+"px"
-          });
-        }
+        width = v;
+        setWidth(v, block);
       });
       var ev = "!"+attrs.cellCursorCell+".hide";
       if(attrs.ngIf){
         ev = ev + "&&("+attrs.ngIf+")";
       }
-      var block, childScope, roles, parent=elem.parent();
-      var mark = $($document[0].createComment('cellCursorCell : ' + attrs.cellCursorCell + ' '));
-      elem.after(mark);
       scope.$watch(ev,function(v){
         if(v){
-          mark.after(elem);
+          if(!block){
+            $transclude(function(clone, newScope) {
+              block = clone;
+              childScope = newScope;
+              setWidth(width, clone);
+              elem.after(clone);
+            });
+          }
         }else{
-          elem.remove();
+          if(childScope){
+            childScope.$destroy();
+            childScope = null;
+          }
+          if(block){
+            block.remove();
+            block=null;
+          }
         }
       });
     };
