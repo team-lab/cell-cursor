@@ -934,6 +934,7 @@ angular.module("cellCursor",[])
   };
   /** setValue. if fail (setter not found), then return false */
   this.setValue=function(data){
+    if(this.isLocked()) return true;
     var o = this.getOption();
     if(o.setter){
       if(typeof(o.setter)=='function'){
@@ -959,6 +960,20 @@ angular.module("cellCursor",[])
     }
     return false;
   };
+  /** setValue. if fail (setter not found), then return false */
+  this.isLocked=function(){
+    var o = this.getOption();
+    if(o.locked){
+      if(typeof(o.locked)=='function'){
+        return o.locked();
+      }else if(typeof(o.locked)=='string'){
+        return $scope.$eval(o.locked);
+      }else if(typeof(o.locked)=='boolean'){
+        return o.locked;
+      }
+    }
+    return false;
+  };
   this.onCellEvent=function(event, cellCursor, td){
     var o = this.getOption(),t="on"+event.type;
     if(o[t]){
@@ -977,6 +992,7 @@ angular.module("cellCursor",[])
   this.openEditor=function(td, finish, cellCursor){
     var o= this.getOption(), editor = o.editor;
     if(editor){
+      if(this.isLocked()) return true;
       var ef = cellEditorFactory[editor];
       if(ef && ef.open){
         ef.open(this,td,finish,cellCursor);

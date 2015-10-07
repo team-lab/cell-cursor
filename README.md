@@ -145,6 +145,7 @@ set option object. set to cell( td or th ) element.
   "setter":"function|string|boolean: cell value setter",
   "getter":"function|string|boolean: cell value getter",
   "model":"string: expression for bind value in scope",
+  "locked":"function|string|boolean: can set cell value?",
   "input":"string: querySelector for input element(that has ngModel)",
   "editor":"string: editor type name. it defined by cellCursorEditorFactory service",
   "on[event]":"function: called on events"
@@ -152,6 +153,8 @@ set option object. set to cell( td or th ) element.
 ```
 
 Order of getters/setter definitions is `getter`|`setter` > `bind` > `ngModel`  > `input`.
+
+If `locked` is true, cell value can't set from all method, and can't open editor.
 
 Event function signeture is `function (event, option:(cell-cursor-options), cellCursorOptionsController, cellCursor, td:HTMLCellElement):boolean`.
 
