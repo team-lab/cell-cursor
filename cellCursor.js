@@ -1179,7 +1179,6 @@ angular.module("cellCursor",[])
   }
   return {
     transclude:'element',
-    template:'<div ng-transclude style="overflow:hidden;white-space:nowrap"></div>',
     require:[
       'cellCursorCell',
       '?ngModel',
@@ -1187,9 +1186,10 @@ angular.module("cellCursor",[])
     controller:'cellCursorOptionsController',
     compile:function(elem,attrs){
     return function(scope, elem, attrs, ctrls, $transclude){
-      ctrls[0].optionExpression = attrs.cellCursorCell;
-      ctrls[0].ngModel = ctrls[1];
-      ctrls[0].element = elem[0];
+      var opt = ctrls[0];
+      opt.optionExpression = attrs.cellCursorCell;
+      opt.ngModel = ctrls[1];
+      opt.element = elem[0];
       var block=null, width, childScope;
       scope.$watch(attrs.cellCursorCell+".width",function(v){
         width = v;
@@ -1207,6 +1207,7 @@ angular.module("cellCursor",[])
               childScope = newScope;
               setWidth(width, clone);
               elem.after(clone);
+              opt.element = clone;
             });
           }
         }else{
@@ -1217,6 +1218,7 @@ angular.module("cellCursor",[])
           if(block){
             block.remove();
             block=null;
+            opt.element = elem;
           }
         }
       });
