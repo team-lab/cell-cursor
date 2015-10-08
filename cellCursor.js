@@ -1164,21 +1164,22 @@ angular.module("cellCursor",[])
     }
   };
 }])
-.directive("cellCursorCell",["$document",function($document){
+.directive("cellCursorCell",["ngIfDirective",function(ngIfDirective){
   function setWidth(v,elem){
-    if(elem){
-      elem.css((v===undefined)?
-        {
-          'max-width':'',
-          'min-width':''
-        } : {
-          'max-width':v+"px",
-          'min-width':v+"px"
-        });
-    }
+    elem.css((v===undefined)?
+      {
+        'max-width':'',
+        'min-width':''
+      } : {
+        'max-width':v+"px",
+        'min-width':v+"px"
+      });
   }
+  var ngIf=ngIfDirective[0];
   return {
-    transclude:'element',
+    transclude:ngIf.transclude,
+    terminal:ngIf.terminal,
+    priority:ngIf.priority,
     require:[
       'cellCursorCell',
       '?ngModel',
@@ -1190,36 +1191,27 @@ angular.module("cellCursor",[])
       opt.optionExpression = attrs.cellCursorCell;
       opt.ngModel = ctrls[1];
       opt.element = elem[0];
-      var block=null, width, childScope;
+      var block=null, width;
       scope.$watch(attrs.cellCursorCell+".width",function(v){
         width = v;
-        setWidth(v, block);
+        if(block){
+          setWidth(v, block);
+        }
       });
       var ev = "!"+attrs.cellCursorCell+".hide";
       if(attrs.ngIf){
         ev = ev + "&&("+attrs.ngIf+")";
       }
+      attrs.ngIf=ev;
+      ngIf.link(scope, elem, attrs, ctrls, $transclude);
       scope.$watch(ev,function(v){
         if(v){
-          if(!block){
-            $transclude(function(clone, newScope) {
-              block = clone;
-              childScope = newScope;
-              setWidth(width, clone);
-              elem.after(clone);
-              opt.element = clone;
-            });
-          }
+          block=elem.next();
+          opt.element=block;
+          setWidth(width,block);
         }else{
-          if(childScope){
-            childScope.$destroy();
-            childScope = null;
-          }
-          if(block){
-            block.remove();
-            block=null;
-            opt.element = elem;
-          }
+          block=null;
+          opt.element=elem;
         }
       });
     };
