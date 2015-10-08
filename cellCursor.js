@@ -768,7 +768,13 @@ angular.module("cellCursor",[])
             break;
         }
         e.stopPropagation();
+        expandWidth();
       });
+      function expandWidth(){
+        if(elem[0].scrollWidth>elem[0].offsetWidth){
+          elem.css("width",elem[0].scrollWidth+70+"px");
+        }
+      }
       scope.$on('cellCursor.editor.open',function(e,td){
         var st = td.currentStyle || td.ownerDocument.defaultView.getComputedStyle(td, '');
         var rect = td.getBoundingClientRect();
@@ -801,6 +807,7 @@ angular.module("cellCursor",[])
           }else{
             elem[0].select();
           }
+          expandWidth();
         });
       });
     }
