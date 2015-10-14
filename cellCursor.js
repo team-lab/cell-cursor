@@ -833,6 +833,7 @@ angular.module("cellCursor",[])
     setValue:function(editorDiv, value){
       editorDiv.find('textarea').val(value);
     },
+    /** override cell-editor interface */
     cellKey:function(event, options, td, cellCursor){
       if(event.type!="keypress")return;
       if(!event.metaKey && !event.altKey && !event.ctrlKey){
@@ -851,13 +852,12 @@ angular.module("cellCursor",[])
         }
       }
     },
+    /** override cell-editor interface */
     open:function(options, td, finish, cellCursor){
-      var editorDiv = $(this.template);
-      $(td).prepend(editorDiv);
       var s = $rootScope.$new(true);
       s.options=options;
-      this.setValue(editorDiv, options.getValue());
       s.cellCursor = cellCursor;
+      /** set value and close editor. */
       s.finish=function(v){
         if(arguments.length){
           options.setValue(v);
@@ -868,6 +868,9 @@ angular.module("cellCursor",[])
           s.$destroy();
         });
       };
+      var editorDiv = $(this.template);
+      $(td).prepend(editorDiv);
+      this.setValue(editorDiv, options.getValue());
       $compile(editorDiv[0])(s);
       s.$emit('cellCursor.editor.open',td);
     }
