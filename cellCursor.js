@@ -901,7 +901,15 @@ angular.module("cellCursor",[])
     }
   };
 }])
-.controller("cellCursorOptionsController",['$scope','$parse','cellEditorFactory',function($scope,$parse,cellEditorFactory){
+.service("cellCursorMethodCamel",[function(){
+  // 'set','hoge.name' => 'huge.setName'
+  return function(prefix, name){
+    return name.replace(/(\.|^)([a-zA-Z0-9]+)$/,function(model, pre, method){
+      return pre+prefix+method.substr(0,1).toUpperCase()+method.substr(1);
+    });
+  };
+}])
+.controller("cellCursorOptionsController",['$scope','$parse','cellEditorFactory','cellCursorMethodCamel',function($scope,$parse,cellEditorFactory,cellCursorMethodCamel){
   this.getOption=function(){
     var o = $parse(this.optionExpression)($scope);
     if(this.ngModel===undefined && o.input){
@@ -927,9 +935,7 @@ angular.module("cellCursor",[])
         return [$scope.$eval(o.getter)];
       }else if(typeof(o.getter)=='boolean'){
         if(o.getter){
-          return [$scope.$eval(o.model.replace(/(\.|^)([a-zA-Z0-9]+)$/,function(model,pre,method){
-            return pre+'get'+method.substr(0,1).toUpperCase()+method.substr(1);
-          })+'()')];
+          return [$scope.$eval(cellCursorMethodCamel('get',o.model)+'()')];
         }else{
           return false;
         }
@@ -961,9 +967,7 @@ angular.module("cellCursor",[])
         return [$scope.$eval(o.setter,{$data:data})];
       }else if(typeof(o.setter)=='boolean'){
         if(o.setter){
-          return $scope.$eval(o.model.replace(/(\.|^)([a-zA-Z0-9]+)$/,function(model,pre,method){
-            return pre+'set'+method.substr(0,1).toUpperCase()+method.substr(1);
-          })+'($data)',{$data:data});
+          return $scope.$eval(cellCursorMethodCamel('set',o.model)+'($data)',{$data:data});
         }else{
           return true;
         }
