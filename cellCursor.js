@@ -798,6 +798,9 @@ angular.module("cellCursor",[])
           "width":st.width,
           "height":st.height
         });
+        var r2 = elem[0].getBoundingClientRect();
+        elem[0].style.top=(rect.top*2-r2.top)+'px';
+        elem[0].style.left=(rect.left*2-r2.left)+'px';
         var oldValue = elem.val();
         elem[0].focus();
         setTimeout(function(){
