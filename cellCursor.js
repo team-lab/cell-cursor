@@ -826,51 +826,51 @@ angular.module("cellCursor",[])
 }])
 .service("cellTextEditor",['$rootScope','$compile',function($rootScope,$compile){
   return {
-      template:'<div cell-cursor-editor-frame="cellCursor">'+
-        '<textarea type="text" class="cell-cursor-text-editor" wrap="off" style="position:fixed;z-index:1" cell-cursor-text-editor="editor"'+
-        ' ng-trim="false" ng-model="options.getterSetter" ng-model-options="{getterSetter:true,updateOn:\'blur\'}">'+
-        '</textarea></div>',
-      setValue:function(editorDiv, value){
-        editorDiv.find('textarea').val(value);
-      },
-      cellKey:function(event, options, td, cellCursor){
-        if(event.type!="keypress")return;
-        if(!event.metaKey && !event.altKey && !event.ctrlKey){
-          if((event.which==13 || event.which==113) && !event.shiftKey){ // ENTER OR F2
-            if(cellCursor.openEditor(td)){
-              event.preventDefault();
-              event.stopPropagation();
-              return true;
-            }
-          }
-          if(event.which >= 32){
-            if(cellCursor.openEditor(td)){
-              event.stopPropagation();
-              return true;
-            }
+    template:'<div cell-cursor-editor-frame="cellCursor">'+
+      '<textarea type="text" class="cell-cursor-text-editor" wrap="off" style="position:fixed;z-index:1" cell-cursor-text-editor="editor"'+
+      ' ng-trim="false" ng-model="options.getterSetter" ng-model-options="{getterSetter:true,updateOn:\'blur\'}">'+
+      '</textarea></div>',
+    setValue:function(editorDiv, value){
+      editorDiv.find('textarea').val(value);
+    },
+    cellKey:function(event, options, td, cellCursor){
+      if(event.type!="keypress")return;
+      if(!event.metaKey && !event.altKey && !event.ctrlKey){
+        if((event.which==13 || event.which==113) && !event.shiftKey){ // ENTER OR F2
+          if(cellCursor.openEditor(td)){
+            event.preventDefault();
+            event.stopPropagation();
+            return true;
           }
         }
-      },
-      open:function(options, td, finish, cellCursor){
-        var editorDiv = $(this.template);
-        $(td).prepend(editorDiv);
-        var s = $rootScope.$new(true);
-        s.options=options;
-        this.setValue(editorDiv, options.getValue());
-        s.cellCursor = cellCursor;
-        s.finish=function(v){
-          if(arguments.length){
-            options.setValue(v);
+        if(event.which >= 32){
+          if(cellCursor.openEditor(td)){
+            event.stopPropagation();
+            return true;
           }
-          editorDiv.remove();
-          finish();
-          setTimeout(function(){
-            s.$destroy();
-          });
-        };
-        $compile(editorDiv[0])(s);
-        s.$emit('cellCursor.editor.open',td);
+        }
       }
+    },
+    open:function(options, td, finish, cellCursor){
+      var editorDiv = $(this.template);
+      $(td).prepend(editorDiv);
+      var s = $rootScope.$new(true);
+      s.options=options;
+      this.setValue(editorDiv, options.getValue());
+      s.cellCursor = cellCursor;
+      s.finish=function(v){
+        if(arguments.length){
+          options.setValue(v);
+        }
+        editorDiv.remove();
+        finish();
+        setTimeout(function(){
+          s.$destroy();
+        });
+      };
+      $compile(editorDiv[0])(s);
+      s.$emit('cellCursor.editor.open',td);
+    }
   };
 }])
 .service("cellEditorFactory",['cellTextEditor',function(cellTextEditor){
