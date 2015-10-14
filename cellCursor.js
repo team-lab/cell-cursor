@@ -824,7 +824,7 @@ angular.module("cellCursor",[])
     }
   };
 }])
-.service("cellTextEditor",['$rootScope','$compile',function($rootScope,$compile){
+.service("cellEditorText",['$rootScope','$compile',function($rootScope,$compile){
   return {
     template:'<div cell-cursor-editor-frame="cellCursor">'+
       '<textarea type="text" class="cell-cursor-text-editor" wrap="off" style="position:fixed;z-index:1" cell-cursor-text-editor="editor"'+
@@ -876,9 +876,9 @@ angular.module("cellCursor",[])
     }
   };
 }])
-.service("cellEditorFactory",['cellTextEditor',function(cellTextEditor){
+.service("cellEditorFactory",['cellEditorText',function(cellEditorText){
   return {
-    "text":cellTextEditor,
+    "text":cellEditorText,
     "input":{
       cellKey:function(event, options, td, cellCursor){
         if(!event.shiftKey && !event.metaKey && !event.altKey && !event.ctrlKey){
