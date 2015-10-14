@@ -925,7 +925,7 @@ angular.module("cellCursor",[])
   this.getValue=function(){
     return (this.getValueOpt()||[])[0];
   };
-  /** get value. if success get value, return [value], else retrun [] */
+  /** get value. if success get value, return [value], else retrun [] (can tell 'fail get value' from 'return false' ) */
   this.getValueOpt=function(){
     var o = this.getOption();
     if(o.getter){
