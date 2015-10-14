@@ -824,9 +824,15 @@ angular.module("cellCursor",[])
     }
   };
 }])
-.service("cellEditorFactory",['$rootScope','$document','$compile',function($rootScope,$document,$compile){
+.service("cellTextEditor",['$rootScope','$compile',function($rootScope,$compile){
   return {
-    "text":{
+      template:'<div cell-cursor-editor-frame="cellCursor">'+
+        '<textarea type="text" class="cell-cursor-text-editor" wrap="off" style="position:fixed;z-index:1" cell-cursor-text-editor="editor"'+
+        ' ng-trim="false" ng-model="options.getterSetter" ng-model-options="{getterSetter:true,updateOn:\'blur\'}">'+
+        '</textarea></div>',
+      setValue:function(editorDiv, value){
+        editorDiv.find('textarea').val(value);
+      },
       cellKey:function(event, options, td, cellCursor){
         if(event.type!="keypress")return;
         if(!event.metaKey && !event.altKey && !event.ctrlKey){
@@ -846,13 +852,12 @@ angular.module("cellCursor",[])
         }
       },
       open:function(options, td, finish, cellCursor){
-        var editorDiv = $('<div cell-cursor-editor-frame="cellCursor"><textarea type="text" class="cell-cursor-text-editor" wrap="off" style="position:fixed;z-index:1" cell-cursor-text-editor="editor"'+
-          ' ng-trim="false" ng-model="options.getterSetter" ng-model-options="{getterSetter:true,updateOn:\'blur\'}"></textarea></div>');
+        var editorDiv = $(this.template);
         $(td).prepend(editorDiv);
         var s = $rootScope.$new(true);
         s.options=options;
+        this.setValue(editorDiv, options.getValue());
         s.cellCursor = cellCursor;
-        editorDiv.find('textarea').val(options.getValue());
         s.finish=function(v){
           if(arguments.length){
             options.setValue(v);
@@ -866,7 +871,11 @@ angular.module("cellCursor",[])
         $compile(editorDiv[0])(s);
         s.$emit('cellCursor.editor.open',td);
       }
-    },
+  };
+}])
+.service("cellEditorFactory",['cellTextEditor',function(cellTextEditor){
+  return {
+    "text":cellTextEditor,
     "input":{
       cellKey:function(event, options, td, cellCursor){
         if(!event.shiftKey && !event.metaKey && !event.altKey && !event.ctrlKey){
