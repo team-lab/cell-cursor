@@ -876,41 +876,46 @@ angular.module("cellCursor",[])
     }
   };
 }])
-.service("cellEditorFactory",['cellEditorText',function(cellEditorText){
+.service("cellEditorInput",[function(){
+  return {
+    /** override cell-editor interface */
+    cellKey:function(event, options, td, cellCursor){
+      if(!event.shiftKey && !event.metaKey && !event.altKey && !event.ctrlKey){
+        switch(event.which){
+        case 13: // ENTER
+        case 9: // TAB
+        case 32: // SPACE
+        case 113: // F2
+          event.stopPropagation();
+          event.preventDefault();
+          return cellCursor.openEditor(td);
+        }
+      }
+    },
+    /** override cell-editor interface */
+    open:function(options, td, finish, cellCursor){
+      var e = $(td.querySelector(options.getOption().input));
+      function keydown(e){
+        if(e.which==9){
+          cellCursor.focus();
+          if(cellCursor.keyMoveHandler(e)){
+            e.preventDefault();
+            $(td).scope().$apply();
+          }
+        }
+      }
+      e.one("blur",function(){
+        e.off("keydown",keydown);
+        finish();
+      }).on("keydown",keydown);
+      e[0].focus();
+    }
+  };
+}])
+.service("cellEditorFactory",['cellEditorText','cellEditorInput',function(cellEditorText,cellEditorInput){
   return {
     "text":cellEditorText,
-    "input":{
-      cellKey:function(event, options, td, cellCursor){
-        if(!event.shiftKey && !event.metaKey && !event.altKey && !event.ctrlKey){
-          switch(event.which){
-          case 13: // ENTER
-          case 9: // TAB
-          case 32: // SPACE
-          case 113: // F2
-            event.stopPropagation();
-            event.preventDefault();
-            return cellCursor.openEditor(td);
-          }
-        }
-      },
-      open:function(options, td, finish, cellCursor){
-        var e = $(td.querySelector(options.getOption().input));
-        function keydown(e){
-          if(e.which==9){
-            cellCursor.focus();
-            if(cellCursor.keyMoveHandler(e)){
-              e.preventDefault();
-              $(td).scope().$apply();
-            }
-          }
-        }
-        e.one("blur",function(){
-          e.off("keydown",keydown);
-          finish();
-        }).on("keydown",keydown);
-        e[0].focus();
-      }
-    }
+    "input":cellEditorInput
   };
 }])
 .service("cellCursorMethodCamel",[function(){
