@@ -551,6 +551,14 @@ CellCursor.prototype.drawCursorClass = function(klass, v){
     $(this.col(v.col)).addClass(klass);
   }
 };
+/**
+ * redraw cursor, area classes at table cell.
+ */
+CellCursor.prototype.redraw = function(){
+  var v = this.selected;
+  this.drawCursorClass("cursor",v.cursor);
+  this.drawAreaClass("area",v);
+};
 // for angular event https://github.com/angular/angular.js/blob/master/src/jqLite.js#L979
 function eventWrap(e){
   if(e.originalEvent) return e;
