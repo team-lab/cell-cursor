@@ -982,7 +982,7 @@ angular.module("cellCursor",[])
     }
     return false;
   };
-  /** setValue. if fail (setter not found), then return false */
+  /** if isLocked return true, then setValue is not work. */
   this.isLocked=function(){
     var o = this.getOption();
     if(o.locked){
