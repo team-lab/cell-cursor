@@ -666,6 +666,12 @@ angular.module("cellCursor",[])
 .factory("CellCursor",function(){
   return CellCursor;
 })
+.service("cellCursorUtil",[function(){
+  return {
+    isKeyAcceptElement:isKeyAcceptElement,
+    propertyMethod:propertyMethod
+  };
+}])
 .directive("cellCursor",["$document",'$window',"$parse",function($document,$window,$parse){
   return {
     restrict:"A",
@@ -918,15 +924,7 @@ angular.module("cellCursor",[])
     "input":cellEditorInput
   };
 }])
-.service("cellCursorMethodCamel",[function(){
-  // 'set','hoge.name' => 'huge.setName'
-  return function(prefix, name){
-    return name.replace(/(\.|^)([a-zA-Z0-9]+)$/,function(model, pre, method){
-      return pre+prefix+method.substr(0,1).toUpperCase()+method.substr(1);
-    });
-  };
-}])
-.controller("cellCursorOptionsController",['$scope','$parse','cellEditorFactory','cellCursorMethodCamel',function($scope,$parse,cellEditorFactory,cellCursorMethodCamel){
+.controller("cellCursorOptionsController",['$scope','$parse','cellEditorFactory',function($scope,$parse,cellEditorFactory){
   this.getOption=function(){
     var o = $parse(this.optionExpression)($scope);
     if(this.ngModel===undefined && o.input){
@@ -952,7 +950,7 @@ angular.module("cellCursor",[])
         return [$scope.$eval(o.getter)];
       }else if(typeof(o.getter)=='boolean'){
         if(o.getter){
-          return [$scope.$eval(cellCursorMethodCamel('get',o.model)+'()')];
+          return [$scope.$eval(propertyMethod('get',o.model)+'()')];
         }else{
           return false;
         }
@@ -984,7 +982,7 @@ angular.module("cellCursor",[])
         return [$scope.$eval(o.setter,{$data:data})];
       }else if(typeof(o.setter)=='boolean'){
         if(o.setter){
-          return $scope.$eval(cellCursorMethodCamel('set',o.model)+'($data)',{$data:data});
+          return $scope.$eval(propertyMethod('set',o.model)+'($data)',{$data:data});
         }else{
           return true;
         }
