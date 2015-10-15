@@ -384,10 +384,20 @@ CellCursor.prototype.select = function(pos,expanding){
   if(!size||!size.row||!size.col){
     return;
   }
-  if(expanding&&typeof(expanding)=='object'){
-    expanding=wrapCursor(expanding,size);
+  var args = {
+    pos:pos,
+    expanding:expanding,
+    size:size,
+    selected:this.selected
+  };
+  var e2 = this.$emit("cellCursor.select.before",args);
+  if(e2.defaultPrevented) return false;
+  if(args.expanding&&typeof(args.expanding)=='object'){
+    expanding=wrapCursor(args.expanding,size);
+  }else{
+    expanding=args.expanding;
   }
-  this.selected.setCurrent(wrapCursor(pos,size),expanding);
+  this.selected.setCurrent(wrapCursor(args.pos,size),expanding);
 };
 function stopCursor(pos, size){
   return {
@@ -412,10 +422,7 @@ CellCursor.prototype.selectMove = function(move,expanding){
   if(!size||!size.row||!size.col){
     return;
   }
-  var pos=wrapCursor({row:c.row + (move.row||0), col:c.col + (move.col||0)},size);
-  if(expanding&&typeof(expanding)=='object'){
-    expanding=wrapCursor(expanding,size);
-  }
+  var pos={row:c.row + (move.row||0), col:c.col + (move.col||0)};
   this.select(pos, expanding);
 };
 /**
@@ -483,8 +490,11 @@ CellCursor.prototype.openEditor = function(td){
   var c = e.controller("cellCursorOptions") || e.controller("cellCursorCell");
   if(c){
     var self = this;
+    var e2 = self.$emit('cellCursor.editor.opening', td, c);
+    if(e2.defaultPrevented) return;
     return  c.openEditor(td,function(){
       self.focus();
+      self.$emit('cellCursor.editor.finished', td, c);
     }, this);
   }
 };
@@ -739,6 +749,7 @@ angular.module("cellCursor",[])
       wscope.$watchCollection('[t.selected.topLeft,t.selected.bottomRight]',function(v,o){
         v = v && {topLeft:v[0],bottomRight:v[1]};
         cellCursor.drawAreaClass("area",v);
+        cellCursor.$emit("cellCursor.select.after");
       });
       wscope.$watch('t.hasFocus',function(v,o){
         elem.toggleClass("focus",v);
@@ -886,7 +897,6 @@ angular.module("cellCursor",[])
       $(td).prepend(editorDiv);
       this.setValue(editorDiv, options.getValue());
       $compile(editorDiv[0])(s);
-      s.$emit('cellCursor.editor.open',td);
     }
   };
 }])

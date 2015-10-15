@@ -56,9 +56,27 @@ cell-cursor emit event to scope.
 
 cell-cursor emit event to cellCursor.
 
- * `$emit("cellCursor", cellCursor, name)`
-   * on initialized. name is string of cell-cursor attrubtue.
-
+ * `$emit("cellCursor.select.before", {pos, expanding, size, selected})`
+   * on before move cursor and area.
+   * `pos` is `{row:number, col:number}` of next `selected.cursor`.
+   * `expanding` is `{row:number, col:number}` of next `selected.start`.
+     * when `expanding` is `true`, next `selected.start=selected.start`
+     * when `expanding` is `false`, next `selected.start=pos`
+   * can cancel select by call `event.preventDefault()`
+   * can modify `pos` and `expanding` to change move.
+   * this event is fired if pos and expanding is not moved.
+ * `$emit("cellCursor.select.after")`
+   * on after move cursor and area.
+   * this event is fired only if pos and expanding is changed.
+ * `$emit("cellCursor.editor.opening", td, cellCursorOptionsController)`
+   * on before open editor.
+   * `td` is HTMLCellElement of editor opening.
+   * `cellCursorOptionsController` is CellCursorOptionsController of this cell.
+   * can cancel select by call `event.preventDefault()`
+ * `$emit('cellCursor.editor.finished', td, cellCursorOptionsController)`
+   * on after close editor.
+   * `td` is HTMLCellElement of editor opening.
+   * `cellCursorOptionsController` is CellCursorOptionsController of this cell.
 
 ### cell-cursor-copy
 
