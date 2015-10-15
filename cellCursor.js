@@ -112,6 +112,7 @@ function Range(pos,expanding){
     this.setCurrent(pos,expanding);
   }
 }
+/** if old == pos, return old (for object reference-level equality) */
 function ifMoving(old,pos){
   return (!old||old.row!=pos.row||old.col!=pos.col) ? pos : old;
 }
