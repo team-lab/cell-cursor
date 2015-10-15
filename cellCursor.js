@@ -662,6 +662,13 @@ function resizeHandler(name, elem, cellCursor, data, handler){
   return td;
 }
 
+/** propertyMethod('set','hoge.name') => 'huge.setName' */
+function propertyMethod(prefix, name){
+  return name.replace(/(\.|^)([a-zA-Z0-9]+)$/,function(model, pre, method){
+    return pre+prefix+method.substr(0,1).toUpperCase()+method.substr(1);
+  });
+}
+
 angular.module("cellCursor",[])
 .factory("CellCursor",function(){
   return CellCursor;
