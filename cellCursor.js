@@ -841,16 +841,16 @@ angular.module("cellCursor",[])
     },
     /** override cell-editor interface */
     cellKey:function(event, options, td, cellCursor){
-      if(event.type!="keypress")return;
       if(!event.metaKey && !event.altKey && !event.ctrlKey){
-        if((event.which==13 || event.which==113) && !event.shiftKey){ // ENTER OR F2
+        if(event.type=="keydown"&&
+          (event.which==13/*ENTER*/ || event.which==113/* F2 */) && !event.shiftKey){
           if(cellCursor.openEditor(td)){
             event.preventDefault();
             event.stopPropagation();
             return true;
           }
         }
-        if(event.which >= 32){
+        if(event.type=="keypress"&& event.which >= 32){
           if(cellCursor.openEditor(td)){
             event.stopPropagation();
             return true;
