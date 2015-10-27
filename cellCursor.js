@@ -897,6 +897,7 @@ angular.module("cellCursor",[])
       $(td).prepend(editorDiv);
       this.setValue(editorDiv, options.getValue());
       $compile(editorDiv[0])(s);
+      s.$emit('cellCursor.editor.open', td);
     }
   };
 }])
