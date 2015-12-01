@@ -1,5 +1,5 @@
-/*jshint globalstrict: true*/
-/*global $:false, angular, setTimeout, XPathResult, Node */
+/*eslint-disable *//*jshint globalstrict: true*/
+/*global angular, setTimeout, XPathResult, Node */
 
 "use strict";
 (function(angular){
@@ -22,19 +22,13 @@ function emitAndApply(scope, emitter){
     }
   };
 }
-var isMSIE = typeof(MSEventObj)=='object';
+// var isMSIE = typeof(MSEventObj)=='object';
 
 /** @return xpath [HTMLElement] */
 function xpath(elem, path){
   var r = elem.ownerDocument.evaluate(path, elem, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
   for(var l=r.snapshotLength, ret=new Array(l),i=0;i<l;i++){
     ret[i]=r.snapshotItem(i);
-  }
-  return ret;
-}
-function toArray(a){
-  for(var l=a.length, ret=new Array(l),i=0;i<l;i++){
-    ret[i]=a[i];
   }
   return ret;
 }
@@ -399,12 +393,12 @@ CellCursor.prototype.select = function(pos,expanding){
   }
   this.selected.setCurrent(wrapCursor(args.pos,size),expanding);
 };
-function stopCursor(pos, size){
+/*function stopCursor(pos, size){
   return {
     col: ((isNaN(pos.col)||pos.col<size.col) ? 0 : ((pos.col>=0) ? size.col-1 : pos.col)),
     row: ((isNaN(pos.row)||pos.row<size.row) ? 0 : ((pos.row>=0) ? size.row-1 : pos.row))
   };
-}
+}*/
 function wrapCursor(pos, size){
   return {
     col: ((isNaN(pos.col)||pos.col>=size.col) ? 0 : ((pos.col<0) ? size.col-1 : pos.col)),
@@ -505,7 +499,7 @@ CellCursor.prototype.openEditor = function(td){
  * @param v:{bottomRight:{row,col},bottomRight:{row,col}} new area range
  */
 CellCursor.prototype.drawAreaClass = function(klass, v){
-  var o,b,r,td,tr,c, removes=[];
+  var b,r,td,tr,c;
   b = this.tBody();
   $(this.table[0].querySelectorAll("tbody>tr>td."+klass))
     .removeClass(klass+" "+klass+"-l "+klass+"-r");
@@ -642,7 +636,7 @@ function resizeHandler(name, elem, cellCursor, data, handler){
     function dragHandler(e){
       var size = {
         width:base.width+e.pageX,
-        height:base.height+e.pageY,
+        height:base.height+e.pageY
       };
       if(cellCursor){
         var e2 = cellCursor.$emit(name+".resizing", pos, size, tdSize(), data);
@@ -1064,7 +1058,7 @@ angular.module("cellCursor",[])
     restrict:"A",
     require:[
       'cellCursorOptions',
-      '?ngModel',
+      '?ngModel'
     ],
     controller:'cellCursorOptionsController',
     link:function(scope, elem, attrs, ctrls){
@@ -1167,7 +1161,7 @@ angular.module("cellCursor",[])
           var width = size.width+'px';
           c.css({
             'max-width':width,
-            'min-width':width,
+            'min-width':width
           });
         },
         finish:function(size){
@@ -1231,7 +1225,7 @@ angular.module("cellCursor",[])
     priority:ngIf.priority,
     require:[
       'cellCursorCell',
-      '?ngModel',
+      '?ngModel'
     ],
     controller:'cellCursorOptionsController',
     compile:function(elem,attrs){
