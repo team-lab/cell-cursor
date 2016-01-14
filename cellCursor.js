@@ -1,5 +1,5 @@
 /*eslint-disable *//*jshint globalstrict: true*/
-/*global angular, setTimeout, XPathResult, Node */
+/*global angular, setTimeout, Node */
 
 "use strict";
 (function(angular){
@@ -23,15 +23,6 @@ function emitAndApply(scope, emitter){
   };
 }
 // var isMSIE = typeof(MSEventObj)=='object';
-
-/** @return xpath [HTMLElement] */
-function xpath(elem, path){
-  var r = elem.ownerDocument.evaluate(path, elem, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-  for(var l=r.snapshotLength, ret=new Array(l),i=0;i<l;i++){
-    ret[i]=r.snapshotItem(i);
-  }
-  return ret;
-}
 
 function oddQuotes(str) {
   return (str.split('"').length - 1) & 1;
@@ -191,7 +182,12 @@ CellCursor.prototype.tBody = function(){
 /** @return HTMLTableColElement */
 CellCursor.prototype.col = function(c){
   if(!this._colgroup){
-    this._colgroup = xpath(this.table[0],"colgroup")[0];
+    for(var o = this.table[0].getElementsByTagName("COLGROUP"), l = o.length, i=0;i<l;i++){
+      if(o[i].parentNode === this.table[0]){
+        this._colgroup = o[i];
+        break;
+      }
+    }
     if(!this._colgroup){
       this._colgroup = this.table[0].ownerDocument.createElement('COLGROUP');
       this.table.prepend(this._colgroup);
@@ -1150,7 +1146,7 @@ angular.module("cellCursor",[])
     link:function(scope, elem, attrs, cellCursor){
       elem.addClass("cell-cursor-col-resize");
       function cols(){
-        return $(xpath(td[0],'ancestor::table/*/tr/*['+(td[0].cellIndex+1)+']'));
+        return $(td[0]).closest("table").children().children("tr").children("*:nth-child("+(td[0].cellIndex+1)+")");
       }
       var c;
       var td = resizeHandler('cellCursor.colResize', elem, cellCursor, scope.$eval(attrs.cellCursorColResize), {
