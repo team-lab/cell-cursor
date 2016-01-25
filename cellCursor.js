@@ -755,7 +755,7 @@ angular.module("cellCursor",[])
     link:function(scope,elem,attrs){
       elem.css({
         position:'relative'
-      }).on('keydown keypress keyup mousedown input compositionstart compositionupdate compositionend',function(e){
+      }).on('keydown keypress keyup mousedown input compositionstart compositionupdate compositionend paste copy',function(e){
         e.stopPropagation();
       });
     }
