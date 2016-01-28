@@ -755,7 +755,7 @@ angular.module("cellCursor",[])
     link:function(scope,elem,attrs){
       elem.css({
         position:'relative'
-      }).on('keydown keypress keyup mousedown input compositionstart compositionupdate compositionend paste copy',function(e){
+      }).on('keydown keypress keyup mousedown mouseup input compositionstart compositionupdate compositionend paste copy click dblclick',function(e){
         e.stopPropagation();
       });
     }
@@ -767,7 +767,7 @@ angular.module("cellCursor",[])
     link:function(scope,elem,attrs,modelCtrl){
       elem.on("blur",function(){
         scope.finish();
-        scope.$apply();
+        scope.$applyAsync();
       }).on('keydown', function(e){
         switch(e.which){
           case 9:
