@@ -1,4 +1,5 @@
 <!DOCTYPE html><html>
+<head>
 <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" integrity="sha256-MfvZlkHCEqatNoGiOXveE8FIwMzZg4W85qfrfIFBfYc= sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/styles/default.min.css">
@@ -58,6 +59,7 @@ tr .wrap{
   font-style: normal;
 }
 </style>
+</head>
 <body>
 <a href="https://github.com/team-lab/cell-cursor"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/a6677b08c955af8400f44c6298f40e7d19cc5b2d/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a>
 
@@ -82,7 +84,7 @@ tr .wrap{
 
 <ul>
 <li>user can move cursor by mouse or keyboad. ( <kbd>ARROW</kbd> )</li>
-</li></ul>
+</ul>
 <li>range selection like Excel.(mouse drag or <kbd>shift</kbd>+<kbd>ARROW</kbd> , <kbd>ESC</kbd> to deselect)</li>
 <li>user can copy range values to Excel. (<kbd>ctrl</kbd>+<kbd>C</kbd>)</li>
 <li>user can paste range values from Excel.  (<kbd>ctrl</kbd>+<kbd>V</kbd>)</li>
@@ -177,6 +179,7 @@ tr .wrap{
       <td><div class="cell-cursor-col-resize"></div>admin</td>
       <!-- complex columns sample -->
       <td ng-repeat="i in cols track by i"><div class="cell-cursor-col-resize"></div>{{i}}</td>
+      <td>(delete)</td>
     </tr>
   </thead>
   <tbody>
@@ -194,10 +197,10 @@ tr .wrap{
         cell-cursor-options="{editor:'text'}"><div class="wrap">{{user.name}}</div></td>
 
       <!-- using ng-model and setter sample -->
-      <td ng-dblclick="cc.openEditor()" ng-model="user.email" cell-cursor-options="{editor:'text',setter:emailSetter(user)}"><div class="wrap">{{user.email}}</div></td>
+      <td ng-dblclick="cc.openEditor()" ng-hide="hideMail" ng-model="user.email" cell-cursor-options="{editor:'text',setter:emailSetter(user)}"><div class="wrap">{{user.email}}</div></td>
 
       <!-- using delegate `input` sample -->
-      <td cell-cursor-options="{input:'input'}"><input type="number" ng-model="user.age" style="width:50px" /></td>
+      <td ng-hide="hideAge" cell-cursor-options="{input:'input'}"><input type="number" ng-model="user.age" style="width:50px" /></td>
 
       <!-- using delegate `input` and custome editor sample -->
       <td cell-cursor-options="{input:'input',editor:'boolean'}"><input type="checkbox" ng-model="user.admin"></td>
@@ -254,10 +257,10 @@ angular.module("tableDataExample",["cellCursor"])
   // override keydown event by ng-keydown
   $scope.keydown=function(e){
     if(e.keyCode==9){
-      console.log("stop",e)
+      console.log("stop",e);
       e.stopImmediatePropagation();
     }
-  }
+  };
   // event on cellCursor initalized.
   $scope.$on("cellCursor",function(e,cellCursor,name){
     // set padding. padding is no selectable area.
@@ -294,7 +297,7 @@ angular.module("tableDataExample",["cellCursor"])
       }
       return ret;
     }
-  }
+  };
 
   // stop drag&drop if order is not natural
   $scope.dragable = function(){
@@ -310,7 +313,7 @@ angular.module("tableDataExample",["cellCursor"])
     }else{
       $scope.sort=name;
     }
-  }
+  };
 
   // create datas
   $scope.start = 0;
@@ -325,7 +328,7 @@ angular.module("tableDataExample",["cellCursor"])
   $scope.cols = [0,1,2,3,4];
   $scope.log=function(msg){
     console.log(msg);
-  }
+  };
   // setter sample
   $scope.userNameSetter=function(user){
     return function(val){
@@ -362,7 +365,7 @@ angular.module("tableDataExample",["cellCursor"])
     }else{
       return this.name;
     }
-  }
+  };
   for(var i=0;i<1000;i++){
     $scope.userList.push(new User({
       id:i,
@@ -384,7 +387,7 @@ angular.module("tableDataExample",["cellCursor"])
     if(i!=-1){
       $scope.userList.splice(i,1);
     }
-  }
+  };
   $scope.setStart=function(x){
     $scope.start = Math.min(Math.max(Math.floor(x/10)*10,0),$scope.userList.length-$scope.limit);
   }
@@ -396,7 +399,7 @@ angular.module("tableDataExample",["cellCursor"])
     var r = e.target.getBoundingClientRect();
     var x = (e.pageX - r.left)*$scope.userList.length / r.width;
     $scope.setStart(x-$scope.limit/2);
-  }
+  };
   $scope.slider=function(e){
     var r = e.target.parentNode.getBoundingClientRect();
     var base = e.pageX, s = $scope.start;
