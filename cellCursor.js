@@ -872,6 +872,7 @@ angular.module("cellCursor",[])
       var s = $rootScope.$new(true);
       s.options=options;
       s.cellCursor = cellCursor;
+      var editorDiv = $(this.template);
       /** set value and close editor. */
       s.finish=function(v){
         if(arguments.length){
@@ -883,7 +884,6 @@ angular.module("cellCursor",[])
           s.$destroy();
         });
       };
-      var editorDiv = $(this.template);
       $(td).prepend(editorDiv);
       this.setValue(editorDiv, options.getValue());
       $compile(editorDiv[0])(s);
@@ -1149,7 +1149,7 @@ angular.module("cellCursor",[])
         return $(td[0]).closest("table").children().children("tr").children("*:nth-child("+(td[0].cellIndex+1)+")");
       }
       var c;
-      var td = resizeHandler('cellCursor.colResize', elem, cellCursor, scope.$eval(attrs.cellCursorColResize), {
+      var td = resizeHandler('cellCursor.colResize', elem, cellCursor, scope.$eval(attrs.cellCursorColResize), { // jshint ignore:line
         init:function(size){
           c = cols();
         },
