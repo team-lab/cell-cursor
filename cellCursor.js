@@ -1169,7 +1169,7 @@ angular.module("cellCursor",[])
             'max-width':'10px',
             'min-width':'10px'
           });
-          var w = Math.max.apply(Math, c.map(function(i, e){ return e.scrollWidth}));
+          var w = Math.max.apply(Math, c.map(function(i, e){ return e.scrollWidth; }));
           if(w && !isNaN(w)){
             c.css({
               'max-width':w+'px',
