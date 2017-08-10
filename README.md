@@ -12,7 +12,7 @@ Simple excel like spreadsheet development kit for angularJs.
   * user can drag to resize column or row.
   * Easy to extend.
 
-![capture](https://dl.dropboxusercontent.com/u/196431/2e2b55af748a0224496ba709af86fa80.png)
+![capture](capture.png)
 
 DEMO
 ----
