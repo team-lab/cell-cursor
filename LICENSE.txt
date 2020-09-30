@@ -1,0 +1,7 @@
+The original repository of this software and associated documentation files is located at https://github.com/team-lab/cell-cursor. The copyright on all data and information in this repository is held not by any individual developer but by teamLab Inc. or its contractual customers. Therefore, any operation on this repository (including but not limited to duplication or forking) requires the prior approval of teamLab Inc.
+Any manipulation of copyrighted material owned by teamLab Inc. or its contractual customers, regardless of whether it is original, copied or branched, may constitute a breach of contract and copyright infringement. teamLab Inc. shall take appropriate legal actions against such acts.
+When you have started working on this repository, it shall be deemed to have accepted the conditions above with regard to the repository.
+
+このソフトウェアと関連ドキュメントファイルのリポジトリ原本は https://github.com/team-lab/cell-cursor に置かれています。ここに含まれる情報の著作権はチームラボ株式会社またはその契約顧客に帰属し、開発者個人には帰属しません。したがって、このリポジトリ上で行う一切の操作（複製やフォークを含みますがこれに限られません）には、チームラボ株式会社の事前の承諾が必要となります。
+チームラボ株式会社またはその契約顧客が権利を有する著作物に対し承諾なく編集や操作が行われた場合は、それがオリジナルであるか複製・分岐先かに関わらず、契約違反および著作権の侵害となる可能性があります。かかる行為に対し、チームラボ株式会社は、しかるべき法的措置を取り対処いたします。
+このリポジトリで作業を開始した場合、上記の注意事項を把握しているものとみなします。
